@@ -346,7 +346,7 @@ Stel dat je een `projectphase` (vraagblokje) probeert te plaatsen buiten het pro
       "message" : "Validation failed",
       "entityInfo" : {
         "entityTypeName" : "projectrequestplacement",
-        "entity" : { /* ... */ },
+        "entity" : { },
         "operation" : "UPSERT"
       },
       "toOneInfo" : null,
