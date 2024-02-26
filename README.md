@@ -401,7 +401,7 @@ In sommige gevallen, bijvoorbeeld als er invalide json wordt aangeleverd, wordt 
 ### Gegevens uitlezen
 Stel je wilt periodiek alle afwezigheden vanaf de laatste 2 weken uitlezen uit app.planning.nl en importeren in een ander systeem.
 
-Zoals hierboven beschreven kan je dat via een standaard OData URL doen. Een voorbeeld zou kunnen zijn: https://app.planning.nl/OData/V1/absenceassignments?$filter=End gt (now() sub duration'P14D')
+Zoals hierboven beschreven kan je dat via een standaard OData URL doen. Een voorbeeld zou kunnen zijn: `https://app.planning.nl/OData/V1/absenceassignments?$filter=End gt (now() sub duration'P14D')`
 
 Het is van belang om, als de set groter kan worden dan 10'000 items, de *nextLink* recursief aan te roepen om de gehele set op te kunnen halen.
 
@@ -424,6 +424,8 @@ Merk op dat op deze manier geen 'oude' personeelsleden opgeruimd worden. Omdat d
       "method" : "DELETE_MULTIPLE"
     }
 ```
+
+Merk op dat de lijst met ExternalIds in de filter vrij groot kan worden, maar gewoonlijk levert dit geen problemen op. Mocht dit wel problemen geven dan kunt u bij ons terecht voor advies.
 
 ## Vragen
 
