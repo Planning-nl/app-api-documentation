@@ -31,7 +31,7 @@ De beschikbare types en velden zijn afhankelijk van de configuratie van uw omgev
 Per veld is er verder een **datatype** (bijvoorbeeld `Edm.String`) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar een `Edm.DateTimeOffset` wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Met bijvoorbeeld `2024-01-01T10:00:00Z` wordt dus een locale tijd van 11 uur aangegeven.
 
 ### Navigaties
-Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie bestaat met een andere entiteit. Bijvoorbeeld heeft personeel een relatie naar een ‘personnel_resourcetype’, genaamd ResourceTypeEntity. Er zijn ook relaties beschikbaar naar collecties, die geven andere types die juist verwijzen naar een personeelslid. Een voorbeeld hiervan is `Resourcedepartments_Resource`.
+Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie bestaat met een andere entiteit. Bijvoorbeeld heeft personeel een relatie naar een *personnel_resourcetype*, genaamd `ResourceTypeEntity`. Er zijn ook relaties beschikbaar naar collecties, die geven andere types die juist verwijzen naar een personeelslid. Een voorbeeld hiervan is `Resourcedepartments_Resource`.
 
 ## Gegevens uitlezen
 
