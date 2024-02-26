@@ -24,7 +24,8 @@ Door op een type te klikken wordt zichtbaar welke velden en relaties er beschikb
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/81e933d9-43bf-4a0e-9218-46fc0dcf5583)
 
 De beschikbare types en velden zijn afhankelijk van de configuratie van uw omgeving. 
-Per veld is er verder een datatype (bijvoorbeeld Edm.String) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar het Edm.DateTimeOffset wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Hier is dus mogelijk een conversie nodig.
+
+Per veld is er verder een **datatype** (bijvoorbeeld Edm.String) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar het Edm.DateTimeOffset wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Hier is dus mogelijk een conversie nodig.
 
 ### Navigaties
 Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie bestaat met een andere entiteit. Bijvoorbeeld heeft personeel een relatie naar een ‘personnel_resourcetype’. Er zijn ook relaties beschikbaar naar collecties, die geven andere types die juist verwijzen naar een personeelslid.
@@ -320,6 +321,52 @@ Voorbeeld:
 
 Stel dat je een `projectphase` (vraagblokje) probeert te plaatsen buiten het project. Dan komt er gewoonlijk een validatiefout terug. In de foutmelding wordt getoond wat voor opties er zijn:
 
+```json
+{
+  "rollback" : true,
+  "noErrors" : false,
+  "items" : [ {
+    "method" : "UPSERT",
+    "entitySetName" : "projectrequestplacements",
+    "entityId" : null,
+    "entity" : null,
+    "exception" : {
+      "status" : 400,
+      "code" : "invalid",
+      "message" : "Validation failed",
+      "entityInfo" : {
+        "entityTypeName" : "projectrequestplacement",
+        "entity" : { ... },
+        "operation" : "UPSERT"
+      },
+      "toOneInfo" : null,
+      "toManyInfo" : null,
+      "hookInfo" : null,
+      "postponedValidations" : null,
+      "validationInfo" : {
+        "errors" : [ {
+          "property" : "End",
+          "failureCode" : "PROJECTREQUESTPLACEMENT_OUTSIDE_PROJECT_RANGE",
+          "possibleSolutions" : [ {
+            "solutionCode" : "EXTEND_PARENT_RANGE",
+            "description" : "Vergroot het bereik van de bovenliggende objecten"
+          } ],
+          "message" : "Vraag ligt buiten de periode van Project",
+          "failureCodeId" : "projectrequestplacementOutsideOfProjectRange",
+          "possibleSolutionsIds" : [ "extendParentRange" ]
+        } ]
+      },
+      "authorizationInfo" : null
+    },
+    "entities" : null
+  } ]
+}
+```
+
+Door nu in de request (of in het request item) de volgende fix option toe te voegen wordt het project automatisch 'opgerekt':
+
+`"fixOptions": { "PROJECTREQUESTPLACEMENT_OUTSIDE_PROJECT_RANGE": "EXTEND_PARENT_RANGE" }`
+
 ### Response
 
 Op een batch request komt er een response terug. Deze bevat per item het eindresultaat:
@@ -348,3 +395,36 @@ Als `noErrors` `true` is dan geeft dit aan dat de request OK was en zonder foute
 Als er fouten zijn opgetreden staat dat gewoonlijk bij het bewuste response item als `exception`. Dit kan bijvoorbeeld een authorizatiefout, een validatiefout of een interne fout zijn.
 
 In sommige gevallen, bijvoorbeeld als er invalide json wordt aangeleverd, wordt er geen `BatchResponse` teruggestuurd maar een 'primitievere' foutmelding.
+
+## Use cases
+
+### Gegevens uitlezen
+Stel je wilt periodiek alle afwezigheden vanaf de laatste 2 weken uitlezen uit app.planning.nl en importeren in een ander systeem.
+
+Zoals hierboven beschreven kan je dat via een standaard OData URL doen. Een voorbeeld zou kunnen zijn: https://app.planning.nl/OData/V1/absenceassignments?$filter=End gt (now() sub duration'P14D')
+
+Het is van belang om, als de set groter kan worden dan 10'000 items, de *nextLink* recursief aan te roepen om de gehele set op te kunnen halen.
+
+Er zal waarschijnlijk een conversieslag moeten worden uitgevoerd (bijvoorbeeld de `Start` en `End` converteren naar het juiste formaat voor het doelsysteem), voordat de items in het doelsysteem worden geimporteerd.
+
+### Personeelsleden synchroniseren
+
+Stel je hebt een set objecten vanuit een extern systeem en wilt deze synchroniseren in app.planning.nl.
+
+Het is van belang dat je aan de externe kant een uniek veld per personeelslid hebt. Dit kan bijvoorbeeld een ID uit dat pakket zijn of een personeelsnummer.
+
+De koppeling zal periodiek alle gegevens uit het externe pakket moeten inlezen en converteren naar een batch request json bericht. Als `ExternalId` wordt bij de entiteiten het externe personeelsnummer gebruikt. Door de batch method `UPSERT` te gebruiken worden automatisch nieuwe personeelsleden toegevoegd, en bestaande geupdate.
+
+Merk op dat op deze manier geen 'oude' personeelsleden opgeruimd worden. Omdat dit wel gewenst is wordt er een `DELETE_MULTIPLE` toegevoegd die wel checkt of het ExternalId is ingevuld, maar de lijst met nog bestaande Ids uitsluit:
+
+```json
+    {
+      "entityFilter" : "filter=length(ExternalId) gt 0 and not (ExternalId in ('ab123', 'ab234'))",
+      "entitySetName" : "personnelcollection",
+      "method" : "DELETE_MULTIPLE"
+    }
+```
+
+## Vragen
+
+Voor vragen omtrent de koppeling kunt u terecht bij support@planning.nl.
