@@ -1,6 +1,6 @@
 # API app.planning.nl
 
-De planningstool app.planning.nl biedt een API aan om gegevens uit te kunnen wisselen. Met deze API is het mogelijk om vrijwel alle gegevens uit te lezen en aan te passen. De API is geschreven op basis van het Odata protocol voor gegevensuitwisseling.
+De planningstool app.planning.nl biedt een API aan om gegevens uit te kunnen wisselen. Met deze API is het mogelijk om vrijwel alle gegevens uit te lezen en aan te passen. De API is geschreven op basis van het OData protocol voor gegevensuitwisseling.
 In dit document wordt beschreven hoe je met deze API aan de slag kunt gaan en hoe je deze kunt gebruiken.
 
 ## Installatie
@@ -24,14 +24,14 @@ Door op een type te klikken wordt zichtbaar welke velden en relaties er beschikb
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/81e933d9-43bf-4a0e-9218-46fc0dcf5583)
 
 De beschikbare types en velden zijn afhankelijk van de configuratie van uw omgeving. 
-Per veld is er verder een datatype (bijvoorbeeld Edm.String) gegeven. Dit is een Odata type. Voor het grote deel wijst dit zich vanzelf, maar het Edm.DateTimeOffset wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Hier is dus mogelijk een conversie nodig.
+Per veld is er verder een datatype (bijvoorbeeld Edm.String) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar het Edm.DateTimeOffset wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Hier is dus mogelijk een conversie nodig.
 
 ### Navigaties
 Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie bestaat met een andere entiteit. Bijvoorbeeld heeft personeel een relatie naar een ‘personnel_resourcetype’. Er zijn ook relaties beschikbaar naar collecties, die geven andere types die juist verwijzen naar een personeelslid.
 
 ## Gegevens uitlezen
 
-Gegevens kunnen worden uitgelezen met een Odata GET request, bijvoorbeeld:
+Gegevens kunnen worden uitgelezen met een OData GET request, bijvoorbeeld:
 https://app.planning.nl/OData/V1/personnelcollection
 (merk op dat we de token parameter verder weglaten)
 
@@ -40,7 +40,7 @@ Dit geeft een JSON document met daarin alle personeelsleden binnen het systeem (
 
 Er kan ook een enkel document worden opgevraagd op basis van een id: `/personnelcollection(4)`
 
-Het Odata protocol bevat extra parameters om te kunnen filteren, sorteren, limiteren, enzovoorts. Hieronder staan een aantal voorbeelden.
+Het OData protocol bevat extra parameters om te kunnen filteren, sorteren, limiteren, enzovoorts. Hieronder staan een aantal voorbeelden.
 
 ### Filters
 `/personnelcollection?$filter=ResourceType eq 2` 
@@ -88,19 +88,19 @@ Selecteer de volgende 10
 Vraag alleen het aantal personeelsleden op
 
 ### Opvraaglimiet
-Er zit een limiet van 10’000 items in de repons. Dit is gedaan om onze server te beschermen tegen aanvragen zonder filters. Als uw opgevraagde set meer items heeft, dan zal er een `@odata.nextLink` veld, met een URL, in de response worden toegevoegd. Deze kan dan als odata request worden uitgevoerd om de volgende pagina met resultaten te krijgen. Dit kan recursief worden gedaan totdat er geen nextpage link meer in de respons staat.
+Er zit een limiet van 10’000 items in de repons. Dit is gedaan om onze server te beschermen tegen aanvragen zonder filters. Als uw opgevraagde set meer items heeft, dan zal er een `@odata.nextLink` veld, met een URL, in de response worden toegevoegd. Deze kan dan als odata request worden uitgevoerd om de volgende pagina met resultaten te krijgen. Dit kan recursief worden gedaan totdat er geen nextpage link meer in de response staat.
 
-### Odata URL genereren
-In het nieuwe planbord kan je ook een Odata URL genereren door een tabel te openen. De filters en getoonde velden (tandwiel-knopje) worden via de knop *exporteren* > *Odata* naar een URL geexporteerd. Een voorbeeld:
+### OData URL genereren
+In het nieuwe planbord kan je ook een OData URL genereren door een tabel te openen. De filters en getoonde velden (tandwiel-knopje) worden via de knop *exporteren* > *OData* naar een URL geexporteerd. Een voorbeeld:
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/fed13fbe-90f6-4325-b77b-bbaef6ff3061)
 
 Geeft als resultaat: `https://app.planning.nl/odata/departments?$filter=contains(Description, 'afd')&$select=Description,Id,SortIndex,Number,Color,Comments,CreatedAt,LastModifiedAt&$expand=CreatedByEntity($select=Description),LastModifiedByEntity($select=Description),DeletedByEntity($select=Description)`
 
 ## Gegevens schrijven
-Het Odata protocol omvat ook het aanmaken, updaten en verwijderen van enteiten via POST, PATCH en DELETE Http requests.
+Het OData protocol omvat ook het aanmaken, updaten en verwijderen van enteiten via POST, PATCH en DELETE Http requests.
 
 ### Aanmaken
-`curl -X POST -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/Odata/V1/personnelcollection?token=..."`
+`curl -X POST -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection?token=..."`
 
 Met body.json:
 
@@ -109,7 +109,7 @@ Met body.json:
 Merk op dat de ExternalId kan worden gebruikt om later te refereren naar dezelfde entiteit. Dit kan je dus gebruiken om het id van het 'andere' systeem in te zetten. Als bij een POST request dit ExternalId al gevonden wordt voor de aangegeven set (personnelcollection) dan wordt in plaats van een nieuw item ingevoegd, de bestaande geupdate.
 
 ### Updaten
-`curl -X PATCH -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/Odata/V1/personnelcollection(123)"`
+`curl -X PATCH -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection(123)"`
 
 Met body.json:
 
@@ -118,15 +118,15 @@ Met body.json:
 Hierbij wordt het item geupdate met id 123. In de praktijk wordt meestal een POST gebruikt met een ExternalId om de entiteit te identificeren.
 
 ### Verwijderen
-`curl -X DELETE "https://app.planning.nl/Odata/V1/personnelcollection(123)"`
+`curl -X DELETE "https://app.planning.nl/OData/V1/personnelcollection(123)"`
 
 Het iem wordt verwijderd. Merk op dat dit ook alleen op basis van het id kan, terwijl in de praktijk vaker gebruik wordt gemaakt van ExternalId.
 Merk op dat om deze reden vaak eerst het Id moet worden gevonden voor een ExternalId. Dit is foutgevoelig omdat het niet in een transactie gebeurd. Daarom gebruiken wij voor onze eigen tool deze endpoints eigenlijk niet, maar gebruiken we de **Batch API**.
 
 ### Batch API
-Wat wij in Odata nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard Odata acties onze eigen **Batch API** toegvoegd, waarmee meerdere Odata acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard Odata requests. Merk op dat wij voor onze eigen tool ook gebruik maken van de Batch API. Dit heeft als voordeel dat het goed getest wordt. 
+Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard OData acties onze eigen **Batch API** toegvoegd, waarmee meerdere OData acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard OData requests. Merk op dat wij voor onze eigen tool ook gebruik maken van de Batch API. Dit heeft als voordeel dat het goed getest wordt. 
 
-> Tip: in de Chrome Developer netwerk tab kan je zien hoe de Odata API gebruikt wordt.
+> Tip: in de Chrome Developer netwerk tab kan je zien hoe de OData API gebruikt wordt.
 
 Een batch request bestaat uit meerdere items:
 
@@ -144,7 +144,7 @@ Een batch request bestaat uit meerdere items:
     {
       "entity" : {
         "Firstname" : "John",
-        "Lastname" : "Doe2",
+        "Lastname" : "Doe",
         "ExternalId" : "ab1234",
         "Resourcedepartments_Resource": [
           {
@@ -173,26 +173,40 @@ Een batch request bestaat uit meerdere items:
   ],
   "rollbackOnError": true,
   "skipItemsAfterError": true,
-  "dryRun": true,
+  "dryRun": false,
   "fixOptions": {}
 }
 ```
+Deze batch request voegt eerst een nieuwe *personeelstype* toe onder `ExternalId` "inleen" (als deze nog niet bestond), en stelt de `Description` in op "Inleen".
+
+Vervolgens upsert hij een personeelslid en refereert daarbij aan het zojuist ingevoerde "inleen" type. Merk op dat dit ook als een *deep upsert* gedaan kan worden zoals bij `ResourceSortEntity`. Bij `Resourcedepartments_Resource` worden in 1 keer alle gekoppelde afdelingen van dit personeelslid *overschreven*, waarbij "Amsterdam" als hoofdafdeling wordt ingesteld.
 
 ### Opties
+
+```typescript
+export interface BatchRequest {
+    items: BatchRequestItem[];
+    rollbackOnError?: boolean;
+    dryRun?: boolean;
+    fullValidation?: boolean;
+    fixOptions?: { [P in FailureCode]?: SolutionCode };
+    skipItemsAfterError?: boolean;
+}
+```
 
 `items`: een array met `BatchRequestItem` objecten (later meer)
 
 `rollbackOnError`: standaard `true`, zet op `false` als je falende items wilt negeren (en de rest wel wilt toepassen)
 
-`skipItemsAfterError`: standaard `true`, zet op `false` als je na een falend item de rest van items toch wilt uitvoeren
-
 `dryRun`: standaard `false`, zet op `true` om uiteindelijk de transactie te rollbacken (geen effect op de database, handig voor tests)
 
 `fixOptions`: als er validatie-problemen optreden stelt de API soms een (of meerdere) *fixOption* voor, deze kan hier gespecificeerd worden
 
+`skipItemsAfterError`: standaard `true`, zet op `false` als je na een falend item de rest van items toch wilt uitvoeren
+
 ### BatchRequestItem
 
-Alle items worden serieel uitgevoerd binnen dezelfde transactie. Je kan het vergelijken met het doen van losse Odata requests, maar dan in 1 keer.
+Alle items worden serieel uitgevoerd binnen dezelfde transactie. Je kan het vergelijken met het doen van losse OData requests, maar dan in 1 keer.
 
 Een `BatchRequestItem` kan de volgende items bevatten:
 
@@ -216,9 +230,121 @@ De `BatchMethod` geeft aan *wat* voor operatie er moet worden uitgevoerd. Hieron
 
 ### Batch Methods
 
+De volgende methods worden ondersteund.
+
+#### UPSERT
+
+Een nieuw item invoegen of een bestaand item updaten. De `BatchRequestItem.entity` is verplicht en geeft de updates die moeten worden uitgevoerd. Deze operatie is gelijk aan de OData POST operatie. `entityId` is optioneel en kan gebruikt worden om een bestaand entity te updaten. Anders wordt de `Id` of `ExternalId` van de entity gebruikt ter identificatie.
+
+> Merk op dat er voor bepaalde types ook andere velden gebruikt kunnen worden ter identificatie. Bijvoorbeeld bij `resourcedepartments` wordt, als je zowel een `Resource` als `Department` gespecificeerd, geprobeerd om een bestaand record te matchen en te updaten.
+
+Voorbeeld:
+
+```json
+{
+  "items" : [
+    {
+      "entity" : {
+        "ExternalId" : "ab1234",
+        "Firstname" : "Hello",
+      },
+      "entitySetName" : "personnelcollection",
+      "method" : "UPSERT"
+    }
+  ]
+}
+```
+
+#### UPDATE
+
+Hetzelfde als `UPSERT`, maar geeft een foutmelding als de entity nog niet bestond.
+
+#### DELETE
+
+Equivalent aan de OData `DELETE` request method. `entityId` of `entity` kan gebruikt worden om te identificeren (net als bij `UPSERT`). Voorbeeld:
+
+```json
+{
+  "items" : [
+    {
+      "entity" : {
+        "ExternalId" : "ab1234"
+      },
+      "entitySetName" : "personnelcollection",
+      "method" : "DELETE"
+    }
+  ]
+}
+```
+
+#### UPSERT_MULTIPLE
+
+Met deze method is het mogelijk om op basis van de `entityFilter` (wat een filter is in dezelfde syntax als `$filter` bij een GET request) een set van entiteiten in 1 keer te updaten. De `entity` bevat de properties/navigaties die geupdate moeten worden.
+
+Voorbeeld:
+
+```json
+{
+  "items" : [
+    {
+      "entity" : {
+        "Description" : "NewDescription",
+      },
+      "entityFilter" : "startswith(ExternalId, 'ab')",
+      "entitySetName" : "personnel_resourcetypes",
+      "method" : "UPSERT_MULTIPLE"
+    }
+  ]
+}
+```
+
+#### DELETE_MULTIPLE
+
+Met deze method is het mogelijk om op basis van de `entityFilter` een set van entiteiten in 1 keer te verwijderen.
+
+Voorbeeld:
+
+```json
+{
+  "items" : [
+    {
+      "entityFilter" : "startswith(ExternalId, 'ab')",
+      "entitySetName" : "personnelcollection",
+      "method" : "DELETE_MULTIPLE"
+    }
+  ]
+}
+```
 
 ### Fix options
 
-Stel dat je een `projectphase` (vraagblokje) probeert te plaatsen buiten het project. Dan komt er gewoonlijk een validatiefout terug:
+Stel dat je een `projectphase` (vraagblokje) probeert te plaatsen buiten het project. Dan komt er gewoonlijk een validatiefout terug. In de foutmelding wordt getoond wat voor opties er zijn:
 
-### Respons
+### Response
+
+Op een batch request komt er een response terug. Deze bevat per item het eindresultaat:
+
+```typescript
+data class BatchResponse(
+    val rollback: Boolean,
+    val noErrors: Boolean,
+    val items: List<BatchResponseItem>,
+)
+
+data class BatchResponseItem(
+    val method: BatchMethod,
+    val entitySetName: String,
+    val entityId: Int?,
+    val entity: Any?,
+    val exception: ODataExceptionInfo?,
+    val entities: List<Any>? = null
+)
+```
+
+Als het veld `rollback` op `true` staat, dan is er niks gewijzigd in de database. Dat kan gebeuren doordat er fouten opgetreden zijn, of doordat de `dryRun` op `true` stond.
+
+Als `noErrors` `true` is dan geeft dit aan dat de request OK was en zonder fouten is afgehandeld.
+
+Als er fouten zijn opgetreden staat dat gewoonlijk bij het bewuste response item als `exception`. Dit kan bijvoorbeeld een authorizatiefout, een validatiefout of een interne fout zijn.
+
+In sommige gevallen, bijvoorbeeld als er invalide json wordt aangeleverd, wordt er geen `BatchResponse` teruggestuurd maar een 'primitievere' foutmelding.
