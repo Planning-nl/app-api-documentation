@@ -1,22 +1,25 @@
 # API app.planning.nl
 
 De planningstool app.planning.nl biedt een API aan om gegevens uit te kunnen wisselen. Met deze API is het mogelijk om vrijwel alle gegevens uit te lezen en aan te passen. De API is geschreven op basis van het OData protocol voor gegevensuitwisseling.
+
 In dit document wordt beschreven hoe je met deze API aan de slag kunt gaan en hoe je deze kunt gebruiken.
 
 ## Installatie
-Om de API aan te zetten logt u als beheerder in de applicatie in. Bij de *Gebruikers* maakt u een nieuwe gebruiker aan (of selecteert een bestaande gebruiker) die mag inloggen bij de API. De ingestelde rechten voor deze gebruiker (eventueel via de rol) zijn ook van toepassing op alle lees- en schrijfacties van de API.
 
 Om te kunnen verbinden met onze API is een API token nodig.
 1. Log in op app.planning.nl (met rechten op gebruikersbeheer)
 2. Ga naar het formulier van de gewenste gebruiker
 3. Ga naar het tabje *Authenticatie*
 4. Zet hier de checkbox bij *API toegang* (of *Webservice*, afhankelijk van de versie)
-5. op *Genereer API token* (of *Genereer webservice token*). Er verschijnt nu een token
+5. Klik op de knop genaamd *Genereer API token* (of *Genereer webservice token*). Er verschijnt nu een token
 6. Kopieer en plak deze token nu achter de url: `https://app.planning.nl/OData/V1/info?token=...`
 7. Open deze URL in de browser. Er verschijnt nu een tabel met alle type entiteiten in het systeem
 
+De ingestelde rechten voor deze gebruiker (eventueel via de rol) zijn ook van toepassing op alle lees- en schrijfacties van de API.
+
 ## Datamodel
 De URL hierboven geeft dus een tabel met alle types in het systeem. Dit zijn er behoorlijk wat, want de types komen overeen met het complete datamodel. Welke types/velden er beschikbaar zijn is afhankelijk van de configuratie van uw omgeving. 
+
 Wellicht heeft u voor uw doeleinden maar een paar types nodig. In de voorbeelden verderop zal duidelijker worden welke types voor welke use case van belang zijn.
 
 ### Velden
@@ -25,15 +28,16 @@ Door op een type te klikken wordt zichtbaar welke velden en relaties er beschikb
 
 De beschikbare types en velden zijn afhankelijk van de configuratie van uw omgeving. 
 
-Per veld is er verder een **datatype** (bijvoorbeeld Edm.String) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar het Edm.DateTimeOffset wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Hier is dus mogelijk een conversie nodig.
+Per veld is er verder een **datatype** (bijvoorbeeld `Edm.String`) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar een `Edm.DateTimeOffset` wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Met bijvoorbeeld `2024-01-01T10:00:00Z` wordt dus een locale tijd van 11 uur aangegeven.
 
 ### Navigaties
-Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie bestaat met een andere entiteit. Bijvoorbeeld heeft personeel een relatie naar een ‘personnel_resourcetype’. Er zijn ook relaties beschikbaar naar collecties, die geven andere types die juist verwijzen naar een personeelslid.
+Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie bestaat met een andere entiteit. Bijvoorbeeld heeft personeel een relatie naar een ‘personnel_resourcetype’, genaamd ResourceTypeEntity. Er zijn ook relaties beschikbaar naar collecties, die geven andere types die juist verwijzen naar een personeelslid. Een voorbeeld hiervan is `Resourcedepartments_Resource`.
 
 ## Gegevens uitlezen
 
 Gegevens kunnen worden uitgelezen met een OData GET request, bijvoorbeeld:
-https://app.planning.nl/OData/V1/personnelcollection
+`https://app.planning.nl/OData/V1/personnelcollection`
+
 (merk op dat we de token parameter verder weglaten)
 
 *personnelcollection* is de entity set name zoals in de info tabel getoond wordt.
@@ -54,7 +58,7 @@ Sselecteer alle personeelsleden met resource type met als Number veld 'abc'
 Alle geboren vanaf het jaar 2000
 
 `/personnelcollection?$filter=Resourcedepartments_Resource/any(d:d/DepartmentEntity/Description eq 'abc')` 
-Personeel voor afdeling 'abc'
+Personeel voor afdeling met de omschrijving 'abc'
 
 Zie voor een lijst met beschikbare functies: https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Filter_System_Query 
 
@@ -89,13 +93,15 @@ Selecteer de volgende 10
 Vraag alleen het aantal personeelsleden op
 
 ### Opvraaglimiet
-Er zit een limiet van 10’000 items in de repons. Dit is gedaan om onze server te beschermen tegen aanvragen zonder filters. Als uw opgevraagde set meer items heeft, dan zal er een `@odata.nextLink` veld, met een URL, in de response worden toegevoegd. Deze kan dan als odata request worden uitgevoerd om de volgende pagina met resultaten te krijgen. Dit kan recursief worden gedaan totdat er geen nextpage link meer in de response staat.
+Er zit een limiet van 10.000 items in de repons. Dit is gedaan om onze server te beschermen tegen aanvragen zonder filters. Als uw opgevraagde set meer items heeft, dan zal er een `@odata.nextLink` veld, met een URL, in de response worden toegevoegd. Deze kan dan als odata request worden uitgevoerd om de volgende 10.000 resultaten te krijgen. Dit kan recursief worden gedaan totdat er geen nextpage link meer in de response staat. Dan is de volledige set binnengehaald.
 
 ### OData URL genereren
-In app.planning.nl (nieuweste versie) kan je ook een OData URL genereren door een tabel te openen. De filters en getoonde velden (tandwiel-knopje) worden via de knop *exporteren* > *OData* naar een URL geexporteerd. Een voorbeeld:
+In app.planning.nl kan je ook een OData URL genereren door een tabel te openen. De filters en getoonde velden (tandwiel-knopje) worden via de knop *exporteren* > *OData* naar een URL geexporteerd. Een voorbeeld:
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/fed13fbe-90f6-4325-b77b-bbaef6ff3061)
 
 Geeft als resultaat: `https://app.planning.nl/odata/departments?$filter=contains(Description, 'afd')&$select=Description,Id,SortIndex,Number,Color,Comments,CreatedAt,LastModifiedAt&$expand=CreatedByEntity($select=Description),LastModifiedByEntity($select=Description),DeletedByEntity($select=Description)`
+
+> Let op! De URL werkt vanuit de applicatie en wijkt daarom net iets af van die voor de API. Vervang `/odata/` voor `/OData/V1/` om deze te converteren naar een URL voor de API.
 
 ## Gegevens schrijven
 Het OData protocol omvat ook het aanmaken, updaten en verwijderen van enteiten via POST, PATCH en DELETE Http requests.
@@ -105,7 +111,9 @@ Het OData protocol omvat ook het aanmaken, updaten en verwijderen van enteiten v
 
 Met body.json:
 
-`{"Firstname": "John", "Lastname": "Doe", "ExternalId": "951"}`
+```json
+{"Firstname": "John", "Lastname": "Doe", "ExternalId": "951"}
+```
 
 Merk op dat de ExternalId kan worden gebruikt om later te refereren naar dezelfde entiteit. Dit kan je dus gebruiken om het id van het 'andere' systeem in te zetten. Als bij een POST request dit ExternalId al gevonden wordt voor de aangegeven set (personnelcollection) dan wordt in plaats van een nieuw item ingevoegd, de bestaande geupdate.
 
@@ -114,22 +122,24 @@ Merk op dat de ExternalId kan worden gebruikt om later te refereren naar dezelfd
 
 Met body.json:
 
-`{"Firstname": "Richard"}`
+```json
+{"Firstname": "Richard"}
+```
 
-Hierbij wordt het item geupdate met id 123. In de praktijk wordt meestal een POST gebruikt met een ExternalId om de entiteit te identificeren.
+Hierbij wordt het item geupdate met id 123. In de praktijk wordt bij koppelingen meestal een POST gebruikt met een ExternalId om de entiteit te identificeren.
 
 ### Verwijderen
 `curl -X DELETE "https://app.planning.nl/OData/V1/personnelcollection(123)"`
 
-Het iem wordt verwijderd. Merk op dat dit ook alleen op basis van het id kan, terwijl in de praktijk vaker gebruik wordt gemaakt van ExternalId.
+Het personeelslid met Id 123 wordt verwijderd. Merk op dat dit ook alleen op basis van het id kan, terwijl in de praktijk vaker gebruik wordt gemaakt van ExternalId.
 Merk op dat om deze reden vaak eerst het Id moet worden gevonden voor een ExternalId. Dit is foutgevoelig omdat het niet in een transactie gebeurd. Daarom gebruiken wij voor onze eigen tool deze endpoints eigenlijk niet, maar gebruiken we de **Batch API**.
 
 ### Batch API
-Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard OData acties onze eigen **Batch API** toegvoegd, waarmee meerdere OData acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard OData requests. Merk op dat wij voor onze eigen tool ook gebruik maken van de Batch API. Dit heeft als voordeel dat het goed getest wordt. 
+Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard OData acties onze eigen **Batch API** toegvoegd, waarmee meerdere OData acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard OData requests. Merk op dat wij voor onze eigen plannignstool ook gebruik maken van deze Batch API. Dit heeft als voordeel dat het goed getest wordt en flexibel genoeg is voor vele toepassingen. 
 
-> Tip: in de Chrome Developer netwerk tab kan je zien hoe de OData API gebruikt wordt.
+> Tip: in de Chrome Developer netwerk tab kan je zien hoe de OData API intern gebruikt wordt.
 
-Een batch request bestaat uit meerdere items:
+Een batch request bestaat uit meerdere items. Voorbeeld:
 
 ```json
 {
@@ -180,7 +190,7 @@ Een batch request bestaat uit meerdere items:
 ```
 Deze batch request voegt eerst een nieuwe *personeelstype* toe onder `ExternalId` "inleen" (als deze nog niet bestond), en stelt de `Description` in op "Inleen".
 
-Vervolgens upsert hij een personeelslid en refereert daarbij aan het zojuist ingevoerde "inleen" type. Merk op dat dit ook als een *deep upsert* gedaan kan worden zoals bij `ResourceSortEntity`. Bij `Resourcedepartments_Resource` worden in 1 keer alle gekoppelde afdelingen van dit personeelslid *overschreven*, waarbij "Amsterdam" als hoofdafdeling wordt ingesteld.
+Vervolgens upsert hij een personeelslid en refereert daarbij aan het zojuist ingevoerde "inleen" type. Merk op dat dit ook als een **deep upsert** gedaan kan worden zoals bij `ResourceSortEntity`. Bij `Resourcedepartments_Resource` worden in 1 keer alle gekoppelde afdelingen van dit personeelslid *overschreven*, waarbij "Amsterdam" als hoofdafdeling wordt ingesteld.
 
 ### Opties
 
@@ -336,7 +346,7 @@ Stel dat je een `projectphase` (vraagblokje) probeert te plaatsen buiten het pro
       "message" : "Validation failed",
       "entityInfo" : {
         "entityTypeName" : "projectrequestplacement",
-        "entity" : { ... },
+        "entity" : { /* ... */ },
         "operation" : "UPSERT"
       },
       "toOneInfo" : null,
@@ -365,32 +375,36 @@ Stel dat je een `projectphase` (vraagblokje) probeert te plaatsen buiten het pro
 
 Door nu in de request (of in het request item) de volgende fix option toe te voegen wordt het project automatisch 'opgerekt':
 
-`"fixOptions": { "PROJECTREQUESTPLACEMENT_OUTSIDE_PROJECT_RANGE": "EXTEND_PARENT_RANGE" }`
+```json
+"fixOptions": { "PROJECTREQUESTPLACEMENT_OUTSIDE_PROJECT_RANGE": "EXTEND_PARENT_RANGE" }
+```
 
 ### Response
 
 Op een batch request komt er een response terug. Deze bevat per item het eindresultaat:
 
 ```typescript
-data class BatchResponse(
-    val rollback: Boolean,
-    val noErrors: Boolean,
-    val items: List<BatchResponseItem>,
-)
+export interface BatchResponse {
+    rollback: boolean;
+    noErrors: boolean;
+    items: BatchResponseItem[];
+}
 
-data class BatchResponseItem(
-    val method: BatchMethod,
-    val entitySetName: String,
-    val entityId: Int?,
-    val entity: Any?,
-    val exception: ODataExceptionInfo?,
-    val entities: List<Any>? = null
-)
+export interface BatchResponseItem {
+    method: BatchMethod;
+    entitySetName: string;
+    entityId?: number;
+    entity?: any;
+    exception?: ODataExceptionInfo;
+    entities?: any[];
+}
 ```
 
 Als het veld `rollback` op `true` staat, dan is er niks gewijzigd in de database. Dat kan gebeuren doordat er fouten opgetreden zijn, of doordat de `dryRun` op `true` stond.
 
 Als `noErrors` `true` is dan geeft dit aan dat de request OK was en zonder fouten is afgehandeld.
+
+De `entity` of `entities` velden bevatten de resultaat entities na de operatie.
 
 Als er fouten zijn opgetreden staat dat gewoonlijk bij het bewuste response item als `exception`. Dit kan bijvoorbeeld een authorizatiefout, een validatiefout of een interne fout zijn.
 
@@ -403,7 +417,7 @@ Stel je wilt periodiek alle afwezigheden vanaf de laatste 2 weken uitlezen uit a
 
 Zoals hierboven beschreven kan je dat via een standaard OData URL doen. Een voorbeeld zou kunnen zijn: `https://app.planning.nl/OData/V1/absenceassignments?$filter=End gt (now() sub duration'P14D')`
 
-Het is van belang om, als de set groter kan worden dan 10'000 items, de *nextLink* recursief aan te roepen om de gehele set op te kunnen halen.
+Het is van belang om, als de set groter kan worden dan 10.000 items, de *nextLink* recursief aan te roepen om de gehele set op te kunnen halen.
 
 Er zal waarschijnlijk een conversieslag moeten worden uitgevoerd (bijvoorbeeld de `Start` en `End` converteren naar het juiste formaat voor het doelsysteem), voordat de items in het doelsysteem worden geimporteerd.
 
@@ -411,7 +425,7 @@ Er zal waarschijnlijk een conversieslag moeten worden uitgevoerd (bijvoorbeeld d
 
 Stel je hebt een set objecten vanuit een extern systeem en wilt deze synchroniseren in app.planning.nl.
 
-Het is van belang dat je aan de externe kant een uniek veld per personeelslid hebt. Dit kan bijvoorbeeld een ID uit dat pakket zijn of een personeelsnummer.
+Het is van belang dat je aan de externe kant een uniek veld per personeelslid hebt. Dit kan bijvoorbeeld een Id uit dat pakket zijn of een personeelsnummer.
 
 De koppeling zal periodiek alle gegevens uit het externe pakket moeten inlezen en converteren naar een batch request json bericht. Als `ExternalId` wordt bij de entiteiten het externe personeelsnummer gebruikt. Door de batch method `UPSERT` te gebruiken worden automatisch nieuwe personeelsleden toegevoegd, en bestaande geupdate.
 
