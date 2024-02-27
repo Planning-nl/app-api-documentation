@@ -453,7 +453,8 @@ De project structuur van app.planning.nl:
 * een vraagblokje specificeert voor elke projectcompetentie een aantal (of uren) toe te kennen resources
 * aan gevraagde competenties van een vraagblokje kunnen *projecttoekenningen* (ook blokjes met start/eind) worden gekoppeld
 * deze worden op een aparte regel voor de *resource* (personeelslid of materieel) getoond:
-![image](https://github.com/Planning-nl/app-api-examples/assets/120531/e03a9d94-07e5-4f08-8fac-c9a252fb92f2)
+
+![image](https://github.com/Planning-nl/app-api-examples/assets/120531/d12b1125-cc44-4796-ba1d-574e65fbe92f)
 
 Dit kan allemaal met de Batch API. Een voorbeeld bericht:
 
