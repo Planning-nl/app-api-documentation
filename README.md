@@ -1,4 +1,4 @@
-# API app.planning.nl
+# Handleiding app.planning.nl API
 
 De planningstool app.planning.nl biedt een API aan om gegevens uit te kunnen wisselen. Met deze API is het mogelijk om vrijwel alle gegevens uit te lezen en aan te passen. De API is geschreven op basis van het OData protocol voor gegevensuitwisseling.
 
