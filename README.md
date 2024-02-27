@@ -441,6 +441,175 @@ Merk op dat op deze manier geen 'oude' personeelsleden opgeruimd worden. Omdat d
 
 Merk op dat de lijst met ExternalIds in de filter vrij groot kan worden, maar gewoonlijk levert dit geen problemen op. Mocht dit wel problemen geven dan kunt u bij ons terecht voor advies.
 
-## Vragen
+### Projectstructuur aanmaken
+
+Een externe partij wilde graag vanuit hun systeem automatisch een vraagblokje en toekenningsblokjes aanmaken in de tool. Bij wijzigingen zou ditzelfde blokje moeten worden geupdate.
+
+De project structuur van app.planning.nl: 
+* vanuit een project kan een *vraagregel* worden toegevoegd
+* aan een vraagregel kunnen *vraagblokjes* worden toegevoegd met een start/eind datum
+* bij een vraagregel geef je de gewenste *projectcompetenties* op
+* competenties zijn eigenschappen waaraan een *resource* (personeel of materieel) kan voldoen
+* een vraagblokje specificeert voor elke projectcompetentie een aantal (of uren) toe te kennen resources
+* aan gevraagde competenties van een vraagblokje kunnen *projecttoekenningen* (ook blokjes met start/eind) worden gekoppeld
+* deze worden op een aparte regel voor de *resource* (personeelslid of materieel) getoond:
+![image](https://github.com/Planning-nl/app-api-examples/assets/120531/e03a9d94-07e5-4f08-8fac-c9a252fb92f2)
+
+Dit kan allemaal met de Batch API. Een voorbeeld bericht:
+
+```js
+{
+  "items" : [ {
+    "entity" : {
+      "Description" : "[Projectnaam]",
+
+      // Start- en einddatum project in Europe/Amsterdam
+      "Start" : "2024-02-07T23:00:00Z", 
+      "End" : "2024-02-12T23:00:00Z",
+
+      // AllDay geeft aan dat het blokje met hele dagen en niet met tijden werkt
+      "AllDay" : true,
+
+      // Identificeert het project voor upserts
+      "ExternalId" : "[Code project]", 
+    },
+    "entitySetName" : "projects", // Project
+    "method" : "UPSERT"
+  }, {
+    "entity" : {
+      "Description" : "",
+
+      // Koppelen aan het aangemaakte project hierboven
+      "ProjectEntity" : {
+        "ExternalId" : "[Code project]" 
+      },
+
+      // Maak/bewerk steeds dezelfde vraagregel
+      "ExternalId" : "[Code project]" 
+    },
+    "entitySetName" : "projectrequests", // Vraagregel
+    "method" : "UPSERT"
+  }, {
+    "entity" : {
+      // Per projectcompetence kunnen meerdere benodigde competenties worden opgegeven (*projectcompetencevalues*).
+      "Projectcompetencevalues_ProjectCompetence" : [ { 
+        "CompetenceEntity" : {
+          "ExternalId" : "[materieel]", // Ter identificatie
+          "Description" : "Materieel" // Naam van de competentieregel
+
+          /*
+           * De *resource class* van de competentie:
+           * 0 = `personeel`
+           * 1 = `entity1`
+           * 2 = `entity2`
+           */
+          "ResourceClass" : 2, 
+        },
+        // Ter identificatie
+        "ExternalId" : "[Code project]" 
+      } ],
+
+      // Maak/bewerk steeds dezelfde competentieregel
+      "ExternalId" : "[Code project]",
+
+       // Koppelen aan de aangemaakte projectrequest hierboven 
+      "ProjectRequestEntity" : {
+        "ExternalId" : "[Code project]" 
+      },
+
+      /*
+       * Dit wordt gebruikt als je een nieuw blokje aanmaakt via de tool.
+       * (in dit geval niet van belang, maar wel een verplicht veld)
+       */
+      "DefaultAmount" : 1 
+    },
+    "entitySetName" : "projectcompetences",
+    "method" : "UPSERT"
+  }, {
+    "entity" : {
+      "Start" : "2024-02-10T07:00:00Z",
+      "End" : "2024-02-10T15:00:00Z",
+      "AllDay" : false, // Dit blokje werkt niet op hele dagen, maar met tijden.
+      "Comments": "[Opmerkingen]",
+
+      // De code voor het blokje uit het externe pakket.
+      "ExternalId" : "[Code blokje]",
+
+      // Zet vraagblokje op de juiste vraagregel.
+      "ProjectRequestEntity" : {
+        "ExternalId" : "[Code project]"
+      },
+    },
+    "entitySetName" : "projectrequestplacements",
+    "method" : "UPSERT",
+    /*
+     * Stel dat Start/End veranderd terwijl er al toekenningen zijn.
+     * Dan kan het gebeuren dat toekenningen buiten dit vraagblokje komen te liggen.
+     * Dat is niet tegestaan waardoor er een validatiefout ontstaat.
+     * 1 van de 'fix options' is om de projecttoekenningen automatisch in te korten
+     * tot de nieuwe Start/End (of eventueel te verwijderen als ze er helemaal buiten
+     * komen te vallen).
+     */ 
+    "fixOptions": { "PROJECTASSIGNMENTS_OUTSIDE_RANGE": "CAP_TO_RANGE" },
+    /*
+     * Als Start veranderd, verplaats dan automatisch alle onderliggende toekenningen mee.
+     * Merk op dat dit de 'default' is dus eigenlijk achterwege kan worden gelaten.
+     * 'extraParamaters' is gewoonlijk alleen nodig als wij dat aangeven in overleg.
+     */  
+    "extraParameters": { "moveSubItems": true }
+  }, {
+    "entity" : {
+      /*
+       * projectcompetenceplacements kunnen automatisch worden geidentificeerd op basis van:
+       * - het vraagblokje (projectrequestplacement)
+       * - en de competentieregel (projectcompetenceentity)
+       */ 
+      "ProjectRequestPlacementEntity" : {
+        "ExternalId" : "[Code blokje]"
+      },
+      "ProjectCompetenceEntity" : {
+        "ExternalId" : "[Code project]"
+      },
+
+      // Het aantal benodigde toekenningen.
+      "Amount": 1,
+
+      /*
+       * De projectassignments (blokjes) die worden getoond.
+       * Door een deep upsert te gebruiken worden eventuele 'oude' toekenningen voor deze 
+       * competentie automatisch opgeruimd.
+       */
+      "Projectassignments_ProjectCompetencePlacement": [ {
+        "ResourceEntity" : {
+          // Eventueel automatisch deze resource aanmaken.
+          "ResourceClass" : 2,
+          "ExternalId" : "[Code Materiaal]",
+          "Description" : "[Materiaal naam]",
+          "ResourceTypeEntity": {
+            "ResourceClass": 2, // Ook een ResourceType heeft een ResourceClass.
+            "ExternalId": "[Code Materiaaltype A]",
+            "Description": "[Materiaaltype A]"
+          }
+        },
+
+        "Start" : "2024-02-10T07:00:00Z",
+        "End" : "2024-02-10T15:00:00Z",
+        "AllDay" : false,
+        "HoursPerDay" : 24,
+
+        /*
+         * We moeten hier een samengestelde ExternalId gebruiken zodat deze globaal uniek
+         * is voor projectcompetenceplacements.
+         */
+        "ExternalId" : "[Code blokje] [Code Materiaal]"
+      } ]
+    },
+    "entitySetName" : "projectcompetenceplacements",
+    "method" : "UPSERT"
+  } ]
+}
+```
+
+## Vragen en support
 
 Voor vragen omtrent de koppeling kunt u terecht bij support@planning.nl.
