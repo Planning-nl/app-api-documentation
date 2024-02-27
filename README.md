@@ -38,7 +38,7 @@ Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie 
 Gegevens kunnen worden uitgelezen met een OData GET request, bijvoorbeeld:
 `https://app.planning.nl/OData/V1/personnelcollection`
 
-(merk op dat we de token parameter verder weglaten)
+> De token parameter laten we verder weg in de voorbeelden
 
 *personnelcollection* is de entity set name zoals in de info tabel getoond wordt.
 Dit geeft een JSON document met daarin alle personeelsleden binnen het systeem (waar de gebruiker leesrechten op heeft).
