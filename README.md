@@ -134,7 +134,7 @@ Hierbij wordt het item geupdate met id 123. In de praktijk wordt bij koppelingen
 Het personeelslid met Id 123 wordt verwijderd. Merk op dat dit ook alleen op basis van het id kan, terwijl in de praktijk vaker gebruik wordt gemaakt van ExternalId.
 Merk op dat om deze reden vaak eerst het Id moet worden gevonden voor een ExternalId. Dit is foutgevoelig omdat het niet in een transactie gebeurd. Daarom gebruiken wij voor onze eigen tool deze endpoints eigenlijk niet, maar gebruiken we de **Batch API**.
 
-### Batch API
+## Batch API
 Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard OData acties onze eigen **Batch API** toegvoegd, waarmee meerdere OData acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard OData requests. Merk op dat wij voor onze eigen plannignstool ook gebruik maken van deze Batch API. Dit heeft als voordeel dat het goed getest wordt en flexibel genoeg is voor vele toepassingen. 
 
 > Tip: in de Chrome Developer netwerk tab kan je zien hoe de OData API intern gebruikt wordt.
