@@ -563,7 +563,7 @@ Dit kan allemaal met de Batch API. Een voorbeeld bericht:
       /*
        * projectcompetenceplacements kunnen automatisch worden geidentificeerd op basis van:
        * - het vraagblokje (projectrequestplacement)
-       * - en de competentieregel (projectcompetenceentity)
+       * - en de competentieregel (projectcompetence)
        */ 
       "ProjectRequestPlacementEntity" : {
         "ExternalId" : "[Code blokje]"
@@ -596,6 +596,13 @@ Dit kan allemaal met de Batch API. Een voorbeeld bericht:
         "Start" : "2024-02-10T07:00:00Z",
         "End" : "2024-02-10T15:00:00Z",
         "AllDay" : false,
+
+        /*
+         * HoursPerDay moet op 24 staan als AllDay false is.
+         * Bij hele dagen geet HoursPerDay het aantal uren per dag.
+         * HoursTotal kan worden gebruikt om een vast aantal uren te specificeren,
+         * onafhankelijk van de duur (Start, End). Dan moet HoursPerDay op null worden ingesteld.
+         */
         "HoursPerDay" : 24,
 
         /*
