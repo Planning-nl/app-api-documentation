@@ -139,6 +139,8 @@ Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere opera
 
 > Tip: in de Chrome Developer netwerk tab kan je zien hoe de OData API intern gebruikt wordt.
 
+De batch API is beschikbaar onder de URL `https://app.planning.nl/OData/V1/batch`. Er moet een token of `X-API-KEY` header worden toegevoegd om te kunnen authenticeren.
+
 Een batch request bestaat uit meerdere items. Voorbeeld:
 
 ```json
