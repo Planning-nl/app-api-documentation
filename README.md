@@ -51,6 +51,8 @@ Het OData protocol bevat extra parameters om te kunnen filteren, sorteren, limit
 `/personnelcollection?$filter=ResourceType eq 2` 
 Selecteer alle personeelsleden met resource type met id *2*
 
+> Merk op dat de query parameter hier niet ge-escapet is om deze leesbaar te houden. Het is de bedoeling dat alle query parameters netjes ge-encode worden.
+
 `/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'` 
 Sselecteer alle personeelsleden met resource type met als Number veld 'abc'
 
