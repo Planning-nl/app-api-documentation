@@ -53,7 +53,7 @@ Selecteer alle personeelsleden met resource type met id *2*
 
 Merk op dat de query parameter URL-encoded moet worden. Dat is hier echter bewust niet gedaan in verband met de leesbaarheid.
 
-Mocht je met een tool werken (bijvoorbeeld LogicApps) die de spaties encode naar `+` in plaats van `%20`, dan kan als query parameter `&odata-accept-forms-encoding=true` worden toegevoegd om de `+` karakters als spaties te interpreteren.
+Mocht je met een tool werken (zoals Azure Logic Apps) die de spaties encode naar `+` in plaats van `%20`, dan accepteerd onze API dit gewoonlijk niet. Echter, door de query parameter `&odata-accept-forms-encoding=true` aan de URLs toe te voegen worden de `+` karakters *wel* als spaties beschouwd.
 
 `/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'` 
 Sselecteer alle personeelsleden met resource type met als Number veld 'abc'
