@@ -51,7 +51,9 @@ Het OData protocol bevat extra parameters om te kunnen filteren, sorteren, limit
 `/personnelcollection?$filter=ResourceType eq 2` 
 Selecteer alle personeelsleden met resource type met id *2*
 
-> Merk op dat de query parameter ge-encode moet worden. Dat is hier echter bewust niet gedaan in verband met de leesbaarheid.
+Merk op dat de query parameter URL-encoded moet worden. Dat is hier echter bewust niet gedaan in verband met de leesbaarheid.
+
+Mocht je met een tool werken (bijvoorbeeld LogicApps) die de spaties encode naar `+` in plaats van `%20`, dan kan als query parameter `&odata-accept-forms-encoding=true` worden toegevoegd om de `+` karakters als spaties te interpreteren.
 
 `/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'` 
 Sselecteer alle personeelsleden met resource type met als Number veld 'abc'
