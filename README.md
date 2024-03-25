@@ -624,6 +624,16 @@ Dit kan allemaal met de Batch API. Een voorbeeld bericht:
 }
 ```
 
+## Sessies
+
+Authenticatie gaat via de `token` query parameter of de `X-API-KEY` header. 
+
+Na de request wordt er een sessie aangemaakt, en teruggestuurd in de response. Het is de bedoeling dat deze bij het volgende request wordt meegestuurd. 
+
+Stuurt u de cookies niet door, dan heeft dit een impact op de performance. De requests zullen trager zijn.
+
+Het is ook mogelijk om zonder cookies onze servers te benaderen. Dan wordt er elke keer een authenticatie gedaan en sessie aangemaakt. Dit is zwaarder voor onze servers, dus wij vragen om in dat geval geen gebruik te maken van parallele requests.
+
 ## Vragen en support
 
 Voor vragen omtrent de koppeling kunt u terecht bij support@planning.nl.
