@@ -110,16 +110,56 @@ Geeft als resultaat: `https://app.planning.nl/odata/departments?$filter=contains
 ## Gegevens schrijven
 Het OData protocol omvat ook het aanmaken, updaten en verwijderen van enteiten via POST, PATCH en DELETE Http requests.
 
-### Aanmaken
+### Aanmaken 
 `curl -X POST -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection?token=..."`
 
 Met body.json:
 
 ```json
-{"Firstname": "John", "Lastname": "Doe", "ExternalId": "951"}
+{"Firstname": "John", "Lastname": "Doe"}
 ```
 
-Merk op dat de ExternalId kan worden gebruikt om later te refereren naar dezelfde entiteit. Dit kan je dus gebruiken om het id van het 'andere' systeem in te zetten. Als bij een POST request dit ExternalId al gevonden wordt voor de aangegeven set (personnelcollection) dan wordt in plaats van een nieuw item ingevoegd, de bestaande geupdate.
+Er wordt nu een nieuwe entiteit aangemaakt.
+
+### Upserten
+Het is ook mogelijk om een bestaande entiteit te updaten via een `POST` request. Je kan op verschillende manieren refereren naar een bestaande entiteit.
+
+#### Id
+Als je een `Id` meegeeft dan wordt die bewuste entiteit geupdate. Als het `Id` is gespecificeerd dan moet deze bestaan, anders wordt er een foutmelding gegeven.
+
+#### ExternalId
+Als je een `ExternalId` meegeeft dan wordt de entiteit daarvoor gezocht. Als deze niet wordt gevonden wordt er een nieuwe entiteit aangemaakt.
+
+#### Unieke sleutels
+Voor diverse enteiten wordt er automatisch gecheckt op bepaalde unieke sleutels.
+
+| Type | Kolomnamen |
+|---|---|
+| resourceteam | Resource, Team |
+| resourcecompetence | Resource, Competence  |
+| resourcedepartment | Resource, Department |
+| activityassignmentcontact | ActivityAssignment, RelationContact |
+| activitycontact | Activity, RelationContact |
+| projectdepartment | Project, Department |
+| projectcontact | Project, RelationContact |
+| projectrequestplacementcontact | ProjectRequestPlacement, RelationContact |
+| projectphasecontact | ProjectPhase, RelationContact |
+| projectcompetencevalue | ProjectCompetence, Competence |
+| projectcompetenceplacement | ProjectRequestPlacement, ProjectCompetence |
+
+#### Matcher
+Je kunt ook een `Matcher` meegeven. Je geeft dan meerdere kolomnamen mee waarop 'gematcht' dient te worden. Als er een entiteit bestaat met exact dezelfde waardes voor de kolommen, dan wordt deze geupdate. Als deze niet gevonden wordt, dan wordt er een nieuwe entiteit aangemaakt. 
+Je kunt dit bijvoorbeeld gebruiken door te matchen op het `Number` veld (`{"Matcher": "Number"}`). Als je wilt matchen op een relatie kan dit ook, via de kolom voor die relatie:
+
+```json
+{
+  "ResourceTypeEntity": {"Number": "a", "Matcher": "Number"},
+  "Custom_naam": "test",
+  "Matcher": "ResourceType,Custom_naam"
+}
+```
+
+Merk op dat de matcher exact hetzelfde werkt als de unieke sleutels.
 
 ### Updaten
 `curl -X PATCH -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection(123)"`
