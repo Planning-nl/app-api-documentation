@@ -460,11 +460,7 @@ In sommige gevallen, bijvoorbeeld als er invalide json wordt aangeleverd, wordt 
 
 Authenticatie gaat via de `token` query parameter of de `X-API-KEY` header. 
 
-Na de request wordt er een sessie aangemaakt. Deze sessie wordt via cookies bijgehouden tussen requests. Deze cookies worden na de eerste request direct teruggestuurd in de response. Het is de bedoeling dat de ontvangen cookies bij het volgende request weer worden meegestuurd. Sessies blijven actief totdat er meer dan een half uur geen request meer is ontvangen die er gebruik van maakt.
-
-Lukt het niet om de cookies terug te sturen? Dan wordt er elke keer een authenticatie gedaan en sessie aangemaakt. Dit heeft een impact op de performance (requests duren langer). Ook is dit zwaarder voor onze servers. Wij staan dit toe, maar het is niet toegestaan om zonder cookies gelijktijdig meerdere requests uit te voeren.
-
-Wilt u wel gebruik maken van parallele requests? Dan is het dus verplicht om cookies mee te sturen. Houd er dan rekening mee dat het **niet is toegestaan** om meer dan 10 requests gelijktijdig uit te voeren. Deze limiet is ingesteld om de API voor alle klanten beschikbaar te houden.
+De server is stateless. Sessies worden direct na een request weer verwijderd. Het is niet (meer) nodig om cookies mee te sturen.
 
 Merk op dat onze servers HTTP2 ondersteunen.
 
