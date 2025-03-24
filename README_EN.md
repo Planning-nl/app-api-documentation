@@ -6,15 +6,17 @@ This document describes how to get started with the API and how to use it.
 
 ## Installation
 
-To connect to our API, you need an API token.
+To connect to our API, an API token is required.
 
 1. Log in to app.planning.nl (with user management permissions).
 2. Go to the form of the desired user.
-3. Navigate to the *Authentication* tab.
-4. Check the box for *API Access* (or *Webservice*, depending on the version).
-5. Click the button named *Generate API Token* (or *Generate Webservice Token*). A token will now appear.
-6. Copy and paste this token into the URL: `https://app.planning.nl/OData/V1/info?token=...`
-7. Open this URL in a browser. A table with all entity types in the system will appear.
+3. Navigate to the Authentication tab.
+4. Check the box for API access (or Webservice, depending on the version).
+5. Go to the Tokens tab and click “New” in the top right corner.
+6. Give the token a description, check the box "Can be used as API token", and optionally set an expiration date.
+7. Click save. A token will now appear.
+8. Copy and paste this token at the end of the URL: https://app.planning.nl/OData/V1/info?token=...
+9. Open this URL in your browser. A table with all entity types in the system will now appear.
 
 The configured rights for this user (possibly via roles) also apply to all read and write actions of the API.
 

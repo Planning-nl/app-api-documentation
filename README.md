@@ -11,9 +11,11 @@ Om te kunnen verbinden met onze API is een API token nodig.
 2. Ga naar het formulier van de gewenste gebruiker
 3. Ga naar het tabje *Authenticatie*
 4. Zet hier de checkbox bij *API toegang* (of *Webservice*, afhankelijk van de versie)
-5. Klik op de knop genaamd *Genereer API token* (of *Genereer webservice token*). Er verschijnt nu een token
-6. Kopieer en plak deze token nu achter de url: `https://app.planning.nl/OData/V1/info?token=...`
-7. Open deze URL in de browser. Er verschijnt nu een tabel met alle type entiteiten in het systeem
+5. Ga naar het tabje "Tokens" en druk rechts bovenin op "Nieuw"
+6. Geef de token een een omschrijving en vink aan "Kan gebruikt worden als API token" en geef een einddatum (optioneel)
+7. Druk op opslaan. Er verschijnt nu een token
+8. Kopieer en plak deze token nu achter de url: `https://app.planning.nl/OData/V1/info?token=...`
+9. Open deze URL in de browser. Er verschijnt nu een tabel met alle type entiteiten in het systeem
 
 De ingestelde rechten voor deze gebruiker (eventueel via de rol) zijn ook van toepassing op alle lees- en schrijfacties van de API.
 
