@@ -109,6 +109,30 @@ Geeft als resultaat: `https://app.planning.nl/odata/departments?$filter=contains
 
 > Let op! De URL werkt vanuit de applicatie en wijkt daarom net iets af van die voor de API. Vervang `/odata/` voor `/OData/V1/` om deze te converteren naar een URL voor de API.
 
+### Aggregaties met $apply
+
+Met de OData-queryoptie `$apply` kun je bewerkingen zoals aggregaties, groeperingen en berekeningen direct op de server uitvoeren. Dit is handig om bijvoorbeeld totalen, gemiddelden of gegroepeerde resultaten op te halen zonder dat je deze zelf hoeft te berekenen in je eigen code.
+
+#### Wat kun je met `$apply`?
+- **Aggregaties**: Som, gemiddelde, minimum, maximum, aantal, enz.
+- **Groeperen**: Data groeperen op één of meerdere velden.
+- **Berekeningen**: Nieuwe velden berekenen op basis van bestaande data.
+- **Combinaties**: Bovenstaande bewerkingen combineren in één query.
+
+#### Voorbeelden
+- **Som van uren**:
+  ```
+  absenceassignments?$apply=aggregate(Hours with sum as TotalHours)
+  ```
+- **Groeperen en aggregeren**:
+  ```
+  absenceassignments?$apply=groupby((AbsenceType))/aggregate(Hours with sum as TotalHours)
+  ```
+- **Combineren van bewerkingen**:
+  ```
+  absenceassignments?$apply=compute(year(Start) as Year)/groupby((Year),aggregate(Hours with sum as TotalHours))
+  ```
+
 ## Gegevens schrijven
 Het OData protocol omvat ook het aanmaken, updaten en verwijderen van enteiten via POST, PATCH en DELETE Http requests.
 
@@ -465,30 +489,6 @@ Authenticatie gaat via de `token` query parameter of de `X-API-KEY` header.
 De server is stateless. Sessies worden direct na een request weer verwijderd. Het is niet (meer) nodig om cookies mee te sturen.
 
 Merk op dat onze servers HTTP2 ondersteunen.
-
-## $apply (OData)
-
-Met de OData-queryoptie `$apply` kun je bewerkingen zoals aggregaties, groeperingen en berekeningen direct op de server uitvoeren. Dit is handig om bijvoorbeeld totalen, gemiddelden of gegroepeerde resultaten op te halen zonder dat je deze zelf hoeft te berekenen in je eigen code.
-
-### Wat kun je met `$apply`?
-- **Aggregaties**: Som, gemiddelde, minimum, maximum, aantal, enz.
-- **Groeperen**: Data groeperen op één of meerdere velden.
-- **Berekeningen**: Nieuwe velden berekenen op basis van bestaande data.
-- **Combinaties**: Bovenstaande bewerkingen combineren in één query.
-
-### Voorbeelden
-- **Som van uren**:
-  ```
-  absenceassignments?$apply=aggregate(Hours with sum as TotalHours)
-  ```
-- **Groeperen en aggregeren**:
-  ```
-  absenceassignments?$apply=groupby((AbsenceType))/aggregate(Hours with sum as TotalHours)
-  ```
-- **Combineren van bewerkingen**:
-  ```
-  absenceassignments?$apply=compute(year(Start) as Year)/groupby((Year),aggregate(Hours with sum as TotalHours))
-  ```
 
 ## Use cases
 
