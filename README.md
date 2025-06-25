@@ -20,7 +20,7 @@ Om te kunnen verbinden met onze API is een API token nodig.
 De ingestelde rechten voor deze gebruiker (eventueel via de rol) zijn ook van toepassing op alle lees- en schrijfacties van de API.
 
 ## Datamodel
-De URL hierboven geeft dus een tabel met alle types in het systeem. Dit zijn er behoorlijk wat, want de types komen overeen met het complete datamodel. Welke types/velden er beschikbaar zijn is afhankelijk van de configuratie van uw omgeving. 
+De URL hierboven geeft dus een tabel met alle types in het systeem. Dit zijn er behoorlijk wat, want de types komen overeen met het complete datamodel. Welke types/velden er beschikbaar zijn is afhankelijk van de configuratie van uw omgeving.
 
 Wellicht heeft u voor uw doeleinden maar een paar types nodig. In de voorbeelden verderop zal duidelijker worden welke types voor welke use case van belang zijn.
 
@@ -28,7 +28,7 @@ Wellicht heeft u voor uw doeleinden maar een paar types nodig. In de voorbeelden
 Door op een type te klikken wordt zichtbaar welke velden en relaties er beschikbaar zijn:
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/81e933d9-43bf-4a0e-9218-46fc0dcf5583)
 
-De beschikbare types en velden zijn afhankelijk van de configuratie van uw omgeving. 
+De beschikbare types en velden zijn afhankelijk van de configuratie van uw omgeving.
 
 Per veld is er verder een **datatype** (bijvoorbeeld `Edm.String`) gegeven. Dit is een OData type. Voor het grote deel wijst dit zich vanzelf, maar een `Edm.DateTimeOffset` wordt geformatteerd als ISO UTC datetime voor de tijdzone Europe/Amsterdam. Met bijvoorbeeld `2024-01-01T10:00:00Z` wordt dus een locale tijd van 11 uur aangegeven.
 
@@ -40,7 +40,7 @@ Sommige velden hebben verder een **navigatie**. Dat betekend dat er een relatie 
 Gegevens kunnen worden uitgelezen met een OData GET request, bijvoorbeeld:
 `https://app.planning.nl/OData/V1/personnelcollection`
 
-> De token parameter laten we verder weg in de voorbeelden. Merk op dat deze desgewenst ook meegegeven kan wordt als HTTP header via `X-API-KEY`.
+> De token parameter laten we verder weg in de voorbeelden. Merk op dat deze desgewenst ook meegegeven kan worden als HTTP header via `X-API-KEY`.
 
 *personnelcollection* is de entity set name zoals in de info tabel getoond wordt.
 Dit geeft een JSON document met daarin alle personeelsleden binnen het systeem (waar de gebruiker leesrechten op heeft).
@@ -50,41 +50,41 @@ Er kan ook een enkel document worden opgevraagd op basis van een id: `/personnel
 Het OData protocol bevat extra parameters om te kunnen filteren, sorteren, limiteren, enzovoorts. Hieronder staan een aantal voorbeelden.
 
 ### Filters
-`/personnelcollection?$filter=ResourceType eq 2` 
+`/personnelcollection?$filter=ResourceType eq 2`
 Selecteer alle personeelsleden met resource type met id *2*
 
 Merk op dat de query parameter URL-encoded moet worden. Dat is hier echter bewust niet gedaan in verband met de leesbaarheid.
 
 Mocht je met een tool werken (zoals Azure Logic Apps) die de spaties encode naar `+` in plaats van `%20`, dan accepteerd onze API dit gewoonlijk niet. Echter, door de query parameter `&odata-accept-forms-encoding=true` aan de URLs toe te voegen worden de `+` karakters *wel* als spaties beschouwd.
 
-`/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'` 
+`/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'`
 Sselecteer alle personeelsleden met resource type met als Number veld 'abc'
 
-`/personnelcollection?$filter=year(Birthdate) ge 2000` 
+`/personnelcollection?$filter=year(Birthdate) ge 2000`
 Alle geboren vanaf het jaar 2000
 
-`/personnelcollection?$filter=Resourcedepartments_Resource/any(d:d/DepartmentEntity/Description eq 'abc')` 
+`/personnelcollection?$filter=Resourcedepartments_Resource/any(d:d/DepartmentEntity/Description eq 'abc')`
 Personeel voor afdeling met de omschrijving 'abc'
 
-Zie voor een lijst met beschikbare functies: https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Filter_System_Query 
+Zie voor een lijst met beschikbare functies: https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Filter_System_Query
 
 ### Selecteren
-`/personnelcollection?$select=Firstname,Lastname` 
+`/personnelcollection?$select=Firstname,Lastname`
 Selecteer alleen de velden *Firstname* en *Lastname*
 
-`/personnelcollection?$expand=ResourceTypeEntity($select=Description)` 
+`/personnelcollection?$expand=ResourceTypeEntity($select=Description)`
 Voeg het *Description* veld toe van het resource type
 
-`/personnelcollection?$expand=Personnel_absenceassignments_Resource($select=Start,End;$expand=AbsenceTypeEntity($select=Description))` 
+`/personnelcollection?$expand=Personnel_absenceassignments_Resource($select=Start,End;$expand=AbsenceTypeEntity($select=Description))`
 Voeg alle afwezigheidstoekenningen toe met daarbij het afwezigheidstype
 
 Merk op dat je binnen een expand ook weer kan filteren, sorteren, limiteren.
 
 ### Sorteren
-`/personnelcollection?$orderby=Firstname` 
+`/personnelcollection?$orderby=Firstname`
 Sorteer op voornaam
 
-`/personnelcollection?$orderby=ResourceTypeEntity/Description` 
+`/personnelcollection?$orderby=ResourceTypeEntity/Description`
 Sorteer op resource type omschrijving
 
 ### Limiteren
@@ -92,10 +92,10 @@ Sorteer op resource type omschrijving
 `/personnelcollection?$top=10&$orderby=Firstname`
 Sselecteer de eerste 10
 
-`/personnelcollection?$top=10&$skip=10$orderby=Firstname` 
+`/personnelcollection?$top=10&$skip=10$orderby=Firstname`
 Selecteer de volgende 10
 
-`/personnelcollection?$top=0&$count=true` 
+`/personnelcollection?$top=0&$count=true`
 Vraag alleen het aantal personeelsleden op
 
 ### Opvraaglimiet
@@ -112,7 +112,7 @@ Geeft als resultaat: `https://app.planning.nl/odata/departments?$filter=contains
 ## Gegevens schrijven
 Het OData protocol omvat ook het aanmaken, updaten en verwijderen van enteiten via POST, PATCH en DELETE Http requests.
 
-### Aanmaken 
+### Aanmaken
 `curl -X POST -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection?token=..."`
 
 Met body.json:
@@ -150,7 +150,7 @@ Voor diverse enteiten wordt er automatisch gecheckt op bepaalde unieke sleutels.
 | projectcompetenceplacement | ProjectRequestPlacement, ProjectCompetence |
 
 #### Matcher
-Je kunt ook een `Matcher` meegeven. Je geeft dan meerdere kolomnamen mee waarop 'gematcht' dient te worden. Als er een entiteit bestaat met exact dezelfde waardes voor de kolommen, dan wordt deze geupdate. Als deze niet gevonden wordt, dan wordt er een nieuwe entiteit aangemaakt. 
+Je kunt ook een `Matcher` meegeven. Je geeft dan meerdere kolomnamen mee waarop 'gematcht' dient te worden. Als er een entiteit bestaat met exact dezelfde waardes voor de kolommen, dan wordt deze geupdate. Als deze niet gevonden wordt, dan wordt er een nieuwe entiteit aangemaakt.
 Je kunt dit bijvoorbeeld gebruiken door te matchen op het `Number` veld (`{"Matcher": "Number"}`). Als je wilt matchen op een relatie kan dit ook, via de kolom voor die relatie:
 
 ```json
@@ -181,7 +181,7 @@ Het personeelslid met Id 123 wordt verwijderd. Merk op dat dit ook alleen op bas
 Merk op dat om deze reden vaak eerst het Id moet worden gevonden voor een ExternalId. Dit is foutgevoelig omdat het niet in een transactie gebeurd. Daarom gebruiken wij voor onze eigen tool deze endpoints eigenlijk niet, maar gebruiken we de **Batch API**.
 
 ## Batch API
-Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard OData acties onze eigen **Batch API** toegvoegd, waarmee meerdere OData acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard OData requests. Merk op dat wij voor onze eigen planningstool ook gebruik maken van deze Batch API. Dit heeft als voordeel dat het goed getest wordt en flexibel genoeg is voor vele toepassingen. 
+Wat wij in OData nog niet toereikend vonden was het schrijven van meerdere operaties tegelijk, binnen 1 transactie. Daarom hebben we bovenop de standaard OData acties onze eigen **Batch API** toegvoegd, waarmee meerdere OData acties atomisch kunnen worden uitgevoerd. Wij raden alle partijen die zelf een koppeling coderen aan om van deze Batch API gebruik te maken in plaats van standaard OData requests. Merk op dat wij voor onze eigen planningstool ook gebruik maken van deze Batch API. Dit heeft als voordeel dat het goed getest wordt en flexibel genoeg is voor vele toepassingen.
 
 > Tip: in de Chrome Developer netwerk tab kan je zien hoe de OData API intern gebruikt wordt.
 
@@ -460,11 +460,35 @@ In sommige gevallen, bijvoorbeeld als er invalide json wordt aangeleverd, wordt 
 
 ## Sessies
 
-Authenticatie gaat via de `token` query parameter of de `X-API-KEY` header. 
+Authenticatie gaat via de `token` query parameter of de `X-API-KEY` header.
 
 De server is stateless. Sessies worden direct na een request weer verwijderd. Het is niet (meer) nodig om cookies mee te sturen.
 
 Merk op dat onze servers HTTP2 ondersteunen.
+
+## $apply (OData)
+
+Met de OData-queryoptie `$apply` kun je bewerkingen zoals aggregaties, groeperingen en berekeningen direct op de server uitvoeren. Dit is handig om bijvoorbeeld totalen, gemiddelden of gegroepeerde resultaten op te halen zonder dat je deze zelf hoeft te berekenen in je eigen code.
+
+### Wat kun je met `$apply`?
+- **Aggregaties**: Som, gemiddelde, minimum, maximum, aantal, enz.
+- **Groeperen**: Data groeperen op één of meerdere velden.
+- **Berekeningen**: Nieuwe velden berekenen op basis van bestaande data.
+- **Combinaties**: Bovenstaande bewerkingen combineren in één query.
+
+### Voorbeelden
+- **Som van uren**:
+  ```
+  absenceassignments?$apply=aggregate(Hours with sum as TotalHours)
+  ```
+- **Groeperen en aggregeren**:
+  ```
+  absenceassignments?$apply=groupby((AbsenceType))/aggregate(Hours with sum as TotalHours)
+  ```
+- **Combineren van bewerkingen**:
+  ```
+  absenceassignments?$apply=compute(year(Start) as Year)/groupby((Year),aggregate(Hours with sum as TotalHours))
+  ```
 
 ## Use cases
 
@@ -501,7 +525,7 @@ Merk op dat de lijst met ExternalIds in de filter vrij groot kan worden, maar ge
 
 Een externe partij wilde graag vanuit hun systeem automatisch een vraagblokje en toekenningsblokjes aanmaken in de tool. Bij wijzigingen zou ditzelfde blokje moeten worden geupdate.
 
-De project structuur van app.planning.nl: 
+De project structuur van app.planning.nl:
 * vanuit een project kan een *vraagregel* worden toegevoegd
 * aan een vraagregel kunnen *vraagblokjes* worden toegevoegd met een start/eind datum
 * bij een vraagregel geef je de gewenste *projectcompetenties* op
