@@ -1,5 +1,3 @@
-Below is the full English translation of your document.
-
 # **Manual for app.planning.nl API**
 
 The planning tool **app.planning.nl** provides an API for exchanging data. With this API it is possible to read and modify almost all data. The API is built on the **OData protocol** for data exchange.
