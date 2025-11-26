@@ -1,191 +1,203 @@
-# Manual app.planning.nl API
+Below is the full English translation of your document.
 
-The planning tool app.planning.nl provides an API for data exchange. With this API, it is possible to read and modify nearly all data. The API is based on the OData protocol for data exchange.
+# **Manual for app.planning.nl API**
+
+The planning tool **app.planning.nl** provides an API for exchanging data. With this API it is possible to read and modify almost all data. The API is built on the **OData protocol** for data exchange.
 
 This document describes how to get started with this API and how to use it.
 
-## Installation
+## **Installation**
 
-To connect to our API, an API token is required.
-1. Log in to app.planning.nl (with user management rights)
-2. Go to the form of the desired user
-3. Go to the *Authentication* tab
-4. Check the box for *API access* (or *Webservice*, depending on the version)
-5. Go to the "Tokens" tab and click "New" at the top right
-6. Give the token a description, check "Can be used as API token" and optionally set an expiration date
-7. Click save. A token will appear
-8. Copy and paste this token after the URL: `https://app.planning.nl/OData/V1/info?token=...`
-9. Open this URL in the browser. A table with all entity types in the system will appear
+To connect to our API, an **API token** is required.
 
-The rights set for this user (possibly via role) also apply to all read and write actions of the API.
+1. Log in to app.planning.nl (with permissions for user management).
+2. Go to the form of the desired user.
+3. Go to the tab *Authentication*.
+4. Check the box *API access* (or *Webservice*, depending on the version).
+5. Go to the tab **Tokens** and click **New** in the top right.
+6. Give the token a description, check **Can be used as API token**, and set an expiry date (optional).
+7. Click **Save**. A token will now appear.
+8. Copy and append this token to the URL:
+   `https://app.planning.nl/OData/V1/info?token=...`
+9. Open this URL in the browser. A table will appear showing all entity types in the system.
 
-## Data Model
+The permissions configured for this user (possibly via roles) also apply to all read and write actions through the API.
 
-The URL above returns a table with all types in the system. There are quite a few because the types correspond to the complete data model. Which types/fields are available depends on the configuration of your environment.
+## **Data model**
 
-You may only need a few types for your purposes. The examples later will clarify which types are important for which use case.
+The URL above displays a table with all types in the system. There are quite a few, as the types correspond to the complete data model. Which types/fields are available depends on the configuration of your environment.
 
-### Fields
+You may only need a few types for your purposes. In the examples later on, it will become clearer which types are relevant for which use case.
 
-By clicking on a type, you can see which fields and relations are available:  
-![image](https://github.com/Planning-nl/app-api-examples/assets/120531/81e933d9-43bf-4a0e-9218-46fc0dcf5583)
+### **Fields**
 
-The available types and fields depend on your environment configuration.
+Clicking on a type shows which fields and relations are available:
+*(image)*
 
-Each field has a **datatype** (for example `Edm.String`). This is an OData type. Most of these are self-explanatory, but an `Edm.DateTimeOffset` is formatted as ISO UTC datetime for the Europe/Amsterdam timezone. For example, `2024-01-01T10:00:00Z` indicates a local time of 11:00.
+The available types and fields depend on your environment’s configuration.
 
-### Navigations
+Each field has a **datatype** (e.g., `Edm.String`). This is an OData type. Most are self-explanatory, but an `Edm.DateTimeOffset` is formatted as ISO UTC datetime for the Europe/Amsterdam timezone. For example:
+`2024-01-01T10:00:00Z` corresponds to local time 11:00.
 
-Some fields have **navigations**, meaning they have a relationship with another entity. For example, personnel have a relation to a *personnel_resourcetype*, called `ResourceTypeEntity`. There are also relations to collections that reference other types referring to a staff member. An example is `Resourcedepartments_Resource`.
+### **Navigations**
 
-## Reading Data
+Some fields also have a **navigation**. This means a relationship exists with another entity. For example, personnel has a relation to a *personnel_resourcetype*, named `ResourceTypeEntity`.
+There are also collection relations, which show types that refer back to a personnel member. An example is `Resourcedepartments_Resource`.
 
-Data can be read with an OData GET request, for example:  
+## **Reading data**
+
+Data can be retrieved using an OData **GET** request, for example:
 `https://app.planning.nl/OData/V1/personnelcollection`
 
-> The token parameter is omitted in examples below. Note that it can also be passed as an HTTP header via `X-API-KEY`.
+> The token parameter is omitted in the examples below. Note that this can also be provided as an HTTP header using `X-API-KEY`.
 
-*personnelcollection* is the entity set name as shown in the info table.  
-This returns a JSON document containing all personnel in the system (where the user has read rights).
+*personnelcollection* is the entity set name as shown in the info table.
+This returns a JSON document with all personnel records (that the user has read access to).
 
-You can also request a single document by id: `/personnelcollection(4)`
+A single record can also be fetched by ID:
+`/personnelcollection(4)`
 
-The OData protocol contains extra parameters for filtering, sorting, limiting, and more. Some examples follow.
+The OData protocol supports additional parameters for filtering, sorting, limiting, and so on. Below are some examples.
 
-### Filters
+### **Filtering**
 
-`/personnelcollection?$filter=ResourceType eq 2`  
-Select all personnel with resource type id *2*
+`/personnelcollection?$filter=ResourceType eq 2`
+Select all personnel members with resource type ID **2**.
 
-Note the query parameter must be URL-encoded, but it is not done here for readability.
+Note: The query parameter must be URL-encoded. This is omitted here for readability.
 
-If you use a tool (like Azure Logic Apps) that encodes spaces as `+` instead of `%20`, our API usually does not accept this. However, by adding the query parameter `&odata-accept-forms-encoding=true` to URLs, the `+` characters *are* interpreted as spaces.
+If you use a tool (such as Azure Logic Apps) that encodes spaces as `+` instead of `%20`, our API normally does **not** accept this. However, if you add the parameter `&odata-accept-forms-encoding=true`, then `+` will *be interpreted as spaces*.
 
-`/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'`  
-Select personnel with resource type having Number field 'abc'
+`/personnelcollection?$filter=ResourceTypeEntity/Number eq 'abc'`
+Select personnel with resource type number `'abc'`.
 
-`/personnelcollection?$filter=year(Birthdate) ge 2000`  
-All born from year 2000 onward
+`/personnelcollection?$filter=year(Birthdate) ge 2000`
+All personnel born from the year 2000 onward.
 
-`/personnelcollection?$filter=Resourcedepartments_Resource/any(d:d/DepartmentEntity/Description eq 'abc')`  
-Personnel for department with description 'abc'
+`/personnelcollection?$filter=Resourcedepartments_Resource/any(d:d/DepartmentEntity/Description eq 'abc')`
+Personnel linked to a department with description `'abc'`.
 
-See available functions list:  
-https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Filter_System_Query
+See the list of available functions:
+[https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Filter_System_Query](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Filter_System_Query)
 
-### Selecting
+### **Selecting**
 
-`/personnelcollection?$select=Firstname,Lastname`  
-Select only the *Firstname* and *Lastname* fields
+`/personnelcollection?$select=Firstname,Lastname`
+Select only the *Firstname* and *Lastname* fields.
 
-`/personnelcollection?$expand=ResourceTypeEntity($select=Description)`  
-Add the *Description* field of the resource type
+`/personnelcollection?$expand=ResourceTypeEntity($select=Description)`
+Add the *Description* field of the resource type.
 
-`/personnelcollection?$expand=Personnel_absenceassignments_Resource($select=Start,End;$expand=AbsenceTypeEntity($select=Description))`  
-Add all absence assignments with their absence types
+`/personnelcollection?$expand=Personnel_absenceassignments_Resource($select=Start,End;$expand=AbsenceTypeEntity($select=Description))`
+Add all absence assignments including absence type information.
 
-Note you can also filter, sort, and limit inside an expand.
+You can filter, sort, and limit *within* an expand.
 
-### Sorting
+### **Sorting**
 
-`/personnelcollection?$orderby=Firstname`  
-Sort by first name
+`/personnelcollection?$orderby=Firstname`
+Sort by first name.
 
-`/personnelcollection?$orderby=ResourceTypeEntity/Description`  
-Sort by resource type description
+`/personnelcollection?$orderby=ResourceTypeEntity/Description`
+Sort by resource type description.
 
-### Limiting
+### **Limiting**
 
-`/personnelcollection?$top=10&$orderby=Firstname`  
-Select first 10
+`/personnelcollection?$top=10&$orderby=Firstname`
+Select the first 10 results.
 
-`/personnelcollection?$top=10&$skip=10&$orderby=Firstname`  
-Select next 10
+`/personnelcollection?$top=10&$skip=10&$orderby=Firstname`
+Select the next 10.
 
-`/personnelcollection?$top=0&$count=true`  
-Request only the count of personnel
+`/personnelcollection?$top=0&$count=true`
+Retrieve only the number of personnel items.
 
-### Request Limit
+### **Request limit**
 
-There is a limit of 10,000 items in the response to protect the server from requests without filters. If your request exceeds this, a `@odata.nextLink` field with a URL will be included in the response. This URL can be requested again to fetch the next 10,000 results. This can be done recursively until there is no nextLink, meaning the entire set has been retrieved.
+There is a limit of **10,000 items** per response. This protects the server against unfiltered requests.
+If your result set is larger, an `@odata.nextLink` field will be added with a URL to retrieve the next 10,000 items. Continue fetching until no nextLink remains.
 
-### Generating OData URL
+> **Note:** Do *not* use large `$skip` values!
+> The system must still iterate through all records to check for deleted items, which is slower and heavier than using nextLink.
 
-In app.planning.nl you can generate an OData URL by opening a table. Filters and displayed fields (gear icon) are exported via *export* > *OData* to a URL. Example:  
-![image](https://github.com/Planning-nl/app-api-examples/assets/120531/fed13fbe-90f6-4325-b77b-bbaef6ff3061)
+## **Generating OData URLs**
 
-Result:  
+In app.planning.nl you can generate OData URLs by opening a table. Filters and shown fields (gear icon) are exported via *export* > *OData*.
+Example output:
+
 `https://app.planning.nl/odata/departments?$filter=contains(Description, 'afd')&$select=Description,Id,SortIndex,Number,Color,Comments,CreatedAt,LastModifiedAt&$expand=CreatedByEntity($select=Description),LastModifiedByEntity($select=Description),DeletedByEntity($select=Description)`
 
-> Note! The URL works from the application and differs slightly from the API. Replace `/odata/` with `/OData/V1/` to convert it to an API URL.
+> Note: This URL works inside the application and differs slightly from the API.
+> Replace `/odata/` with `/OData/V1/` to convert it for API usage.
 
-### Aggregations with $apply
+## **Aggregations with $apply**
 
-The OData query option `$apply` allows server-side operations like aggregations, grouping, and calculations. This is useful to get totals, averages, or grouped results without computing them yourself.
+The OData `$apply` option allows server-side operations such as aggregations, grouping, and calculations.
 
-#### What can you do with `$apply`?
+### What you can do with `$apply`:
 
-- **Aggregations**: Sum, average, min, max, count, etc.  
-- **Grouping**: Group data by one or more fields  
-- **Calculations**: Compute new fields based on existing data  
-- **Combinations**: Combine these operations in one query
+* **Aggregations:** sum, average, min, max, count, etc.
+* **Grouping:** group by one or more fields
+* **Calculations:** compute derived fields
+* **Combinations:** mix multiple operations in one query
 
-#### Examples
+### Examples
 
-- **Sum of hours**:  
-```
-
-absenceassignments?\$apply=aggregate(Hours with sum as TotalHours)
+**Sum of hours:**
 
 ```
-- **Group and aggregate**:  
+absenceassignments?$apply=aggregate(Hours with sum as TotalHours)
 ```
 
-absenceassignments?\$apply=groupby((AbsenceType))/aggregate(Hours with sum as TotalHours)
+**Group and aggregate:**
 
 ```
-- **Combine operations**:  
+absenceassignments?$apply=groupby((AbsenceType))/aggregate(Hours with sum as TotalHours)
 ```
 
-absenceassignments?\$apply=compute(year(Start) as Year)/groupby((Year),aggregate(Hours with sum as TotalHours))
+**Combined operations:**
 
-````
+```
+absenceassignments?$apply=compute(year(Start) as Year)/groupby((Year),aggregate(Hours with sum as TotalHours))
+```
 
-## Writing Data
+## **Writing data**
 
-The OData protocol also supports creating, updating, and deleting entities via POST, PATCH, and DELETE HTTP requests.
+The OData protocol supports POST, PATCH, and DELETE for creating, updating, and deleting entities.
 
-### Creating
+### **Create**
 
-```bash
+```
 curl -X POST -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection?token=..."
-````
+```
 
-With body.json:
+`body.json`:
 
 ```json
 {"Firstname": "John", "Lastname": "Doe"}
 ```
 
-A new entity will be created.
+This creates a new entity.
 
-### Upserting
+### **Upsert**
 
-You can update an existing entity via a `POST` request. You can refer to an existing entity in different ways.
+You can also update an existing entity via `POST`. Identification can be done by:
 
-#### Id
+#### **Id**
 
-If you provide an `Id`, that specific entity is updated. The `Id` must exist; otherwise, an error occurs.
+If an `Id` is included, that specific entity is updated.
+If the ID does not exist, an error occurs.
 
-#### ExternalId
+#### **ExternalId**
 
-If you provide an `ExternalId`, the entity is searched for that. If not found, a new entity is created.
+If an `ExternalId` is provided, the system searches for an entity with that ID.
+If not found, a new entity is created.
 
-#### Unique keys
+#### **Unique keys**
 
-For various entities, unique keys are checked automatically.
+For some entities, unique keys are enforced:
 
-| Type                           | Column names                               |
+| Type                           | Columns                                    |
 | ------------------------------ | ------------------------------------------ |
 | resourceteam                   | Resource, Team                             |
 | resourcecompetence             | Resource, Competence                       |
@@ -199,10 +211,12 @@ For various entities, unique keys are checked automatically.
 | projectcompetencevalue         | ProjectCompetence, Competence              |
 | projectcompetenceplacement     | ProjectRequestPlacement, ProjectCompetence |
 
-#### Matcher
+#### **Matcher**
 
-You can also provide a `Matcher`. You specify multiple column names to match on. If an entity exists with exactly the same values for those columns, it is updated. If not found, a new entity is created.
-For example, matching on the `Number` field (`{"Matcher": "Number"}`). You can also match on a relation via the column for that relation:
+You can also include a `Matcher` specifying which columns must match.
+If an entity exists with exactly those matching fields, it is updated; otherwise a new one is created.
+
+Example:
 
 ```json
 {
@@ -212,46 +226,52 @@ For example, matching on the `Number` field (`{"Matcher": "Number"}`). You can a
 }
 ```
 
-Note the matcher works exactly like unique keys.
+### **Update**
 
-### Updating
-
-```bash
+```
 curl -X PATCH -H "Content-Type: application/json; charset=utf-8" -d @body.json "https://app.planning.nl/OData/V1/personnelcollection(123)"
 ```
 
-With body.json:
+`body.json`:
 
 ```json
 {"Firstname": "Richard"}
 ```
 
-This updates the item with id 123. In practice, POST with ExternalId is often used for linked entities.
+Updates the item with ID 123.
 
-### Deleting
+### **Delete**
 
-```bash
+```
 curl -X DELETE "https://app.planning.nl/OData/V1/personnelcollection(123)"
 ```
 
-The personnel with Id 123 is deleted. Note this only works by id, so usually the Id must be found first for an ExternalId. This can be error-prone because it is not transactional. Therefore, our own tool usually does not use these endpoints but uses the **Batch API**.
+Deletes the personnel member with ID 123.
 
-## Batch API
+Note: This can only be done using the ID. As many integrations work with ExternalId, often the ID must first be resolved. This is error-prone, because it is not done within a transaction.
 
-What we found lacking in standard OData was writing multiple operations at once within one transaction. Therefore, we added our own **Batch API** on top of standard OData actions, which allows multiple OData actions to be executed atomically. We recommend all parties coding integrations to use this Batch API instead of standard OData requests. Note that our own planning tool also uses this Batch API, which is well-tested and flexible.
+For this reason we recommend using the **Batch API** instead.
 
-> Tip: In Chrome Developer Network tab you can see how the OData API is used internally.
+## **Batch API**
 
-The batch API is available at `https://app.planning.nl/OData/V1/batch`. You must add a token or `X-API-KEY` header for authentication.
+Because standard OData operations lack transactional grouping, we added our own **Batch API**, allowing multiple OData operations to be executed **atomically**.
 
-A batch request consists of multiple items. Example:
+We recommend all integrators use the Batch API.
+Our own planning tool uses it as well, ensuring it is well-tested and flexible.
+
+Batch API URL:
+`https://app.planning.nl/OData/V1/batch`
+
+Authentication via token or `X-API-KEY`.
+
+### **Batch request example**
 
 ```json
 {
   "items" : [ 
     {
       "entity" : {
-        "Description" : "Inleen",
+        "Description" : "Inloan",
         "ExternalId" : "inleen"
       },
       "entitySetName" : "personnel_resourcetypes",
@@ -294,9 +314,7 @@ A batch request consists of multiple items. Example:
 }
 ```
 
-This batch request first adds a new *personnel type* with `ExternalId` "inleen" (if it did not exist) and sets its `Description` to "Inleen". Then it upserts a personnel record referencing the newly created "inleen" type. Note that this is also a **deep upsert**, e.g., with `ResourceSortEntity`. The `Resourcedepartments_Resource` collection overwrites all linked departments of this personnel at once, marking "Amsterdam" as main department.
-
-### Options
+## **Options**
 
 ```typescript
 export interface BatchRequest {
@@ -309,15 +327,16 @@ export interface BatchRequest {
 }
 ```
 
-* `items`: array of `BatchRequestItem` objects (see below)
-* `rollbackOnError`: default `true`, set to `false` to ignore failing items and apply the rest
-* `dryRun`: default `false`, set to `true` to rollback transaction (no DB effect, useful for testing)
-* `fixOptions`: if validation problems occur, API sometimes suggests fix options, which can be specified here
-* `skipItemsAfterError`: default `true`, set to `false` to continue after a failing item
+* **items**: an array of `BatchRequestItem` objects (explained later)
+* **rollbackOnError**: default `true`. Set to `false` if you want to ignore failing items while applying the rest.
+* **dryRun**: default `false`. Set to `true` to roll back the entire transaction (no database changes—useful for tests).
+* **fixOptions**: if validation errors occur, the API may propose one or more *fixOptions*. These can be specified here.
+* **skipItemsAfterError**: default `true`. Set to `false` if you want remaining items to execute even after a failure.
 
-### BatchRequestItem
+## **BatchRequestItem**
 
-All items execute serially within the same transaction. It is similar to sending separate OData requests but in one go.
+All items are executed **sequentially** within the same transaction.
+It is comparable to performing multiple OData requests, but bundled into one atomic operation.
 
 A `BatchRequestItem` can contain:
 
@@ -333,23 +352,29 @@ export interface BatchRequestItem {
 }
 ```
 
-Some options can also be global; in that case, they override the global setting for this item only.
+Some options also exist at the global request level. If they are specified on the item level, they override the global settings for that single item.
 
-`entitySetName` specifies the set the operation applies to (e.g. *personnelcollection*).
+* `entitySetName`: The target entity set (e.g., *personnelcollection*).
+* `method`: The **type of operation** to perform. Explained below.
 
-`BatchMethod` indicates which operation to perform (explained below).
+## **Batch Methods**
 
-### Batch Methods
+The following methods are supported:
 
-Supported methods:
+### **UPSERT**
 
-#### UPSERT
+Insert a new item or update an existing one.
+`BatchRequestItem.entity` is required and contains the fields to update.
 
-Insert a new item or update an existing one. `BatchRequestItem.entity` is required and contains the updates. Equivalent to OData POST. `entityId` is optional; if specified, it updates an existing entity. Otherwise, `Id` or `ExternalId` from the entity is used to identify.
+This behaves like the OData **POST** method.
 
-> Note that some types use other fields for identification. For example, in `resourcedepartments`, if both `Resource` and `Department` are specified, it tries to match and update an existing record.
+* `entityId` is optional and, if provided, is used to update an existing entity.
+* Otherwise the system uses `Id` or `ExternalId` inside the entity.
 
-Example:
+Some types support additional matching fields. Example:
+For `resourcedepartments`, if both `Resource` and `Department` are provided, the system tries to match and update an existing record.
+
+**Example:**
 
 ```json
 {
@@ -366,13 +391,17 @@ Example:
 }
 ```
 
-#### UPDATE
+### **UPDATE**
 
-Same as `UPSERT`, but returns an error if the entity does not exist.
+Same as UPSERT, but throws an error if the entity does **not** yet exist.
 
-#### DELETE
+### **DELETE**
 
-Equivalent to OData `DELETE`. `entityId` or `entity` can be used for identification. Example:
+Equivalent to OData **DELETE**.
+
+`entityId` or `entity` can be used for identification.
+
+**Example:**
 
 ```json
 {
@@ -388,11 +417,12 @@ Equivalent to OData `DELETE`. `entityId` or `entity` can be used for identificat
 }
 ```
 
-#### UPSERT\_MULTIPLE
+### **UPSERT_MULTIPLE**
 
-Update a set of entities based on `entityFilter` (filter syntax like `$filter` in GET). `entity` contains properties/navigations to update.
+Updates multiple entities at once using an `entityFilter` (same syntax as `$filter` in GET requests).
+The `entity` contains the properties/navigations to update.
 
-Example:
+**Example:**
 
 ```json
 {
@@ -409,11 +439,11 @@ Example:
 }
 ```
 
-#### DELETE\_MULTIPLE
+### **DELETE_MULTIPLE**
 
-Delete a set of entities based on `entityFilter`.
+Deletes multiple entities at once based on an `entityFilter`.
 
-Example:
+**Example:**
 
 ```json
 {
@@ -427,9 +457,12 @@ Example:
 }
 ```
 
-### Fix options
+## **Fix options**
 
-If you try to place a `projectphase` (request block) outside the project, a validation error usually occurs. The error message shows possible options:
+Suppose you attempt to create a `projectphase` (question block) outside the project’s date range.
+A validation error will be returned. The error response includes possible fix options.
+
+Example error:
 
 ```json
 {
@@ -438,26 +471,18 @@ If you try to place a `projectphase` (request block) outside the project, a vali
   "items" : [ {
     "method" : "UPSERT",
     "entitySetName" : "projectrequestplacements",
-    "entityId" : null,
-    "entity" : null,
     "exception" : {
       "status" : 400,
       "code" : "invalid",
       "message" : "Validation failed",
-      "entityInfo" : {
-        "entityTypeName" : "projectrequestplacement",
-        "entity" : { },
-        "operation" : "UPSERT"
-      },
       "validationInfo" : {
         "errors" : [ {
           "property" : "End",
           "failureCode" : "PROJECTREQUESTPLACEMENT_OUTSIDE_PROJECT_RANGE",
           "possibleSolutions" : [ {
             "solutionCode" : "EXTEND_PARENT_RANGE",
-            "description" : "Extend the range of the parent objects"
-          } ],
-          "message" : "Request lies outside the Project period"
+            "description" : "Increase the range of the parent objects"
+          } ]
         } ]
       }
     }
@@ -465,15 +490,15 @@ If you try to place a `projectphase` (request block) outside the project, a vali
 }
 ```
 
-Adding the following fix option to the request (or request item) automatically extends the project:
+You can apply the suggested fix automatically by adding:
 
 ```json
 "fixOptions": { "PROJECTREQUESTPLACEMENT_OUTSIDE_PROJECT_RANGE": "EXTEND_PARENT_RANGE" }
 ```
 
-### Response
+## **Response**
 
-A batch request returns a response with the result per item:
+A batch request returns a response with results for each item:
 
 ```typescript
 export interface BatchResponse {
@@ -484,59 +509,56 @@ export interface BatchResponse {
 
 export interface BatchResponseItem {
     method: BatchMethod;
-    entitySet
+    entitySetName: string;
+    entityId?: number;
+    entity?: any;
+    exception?: ODataExceptionInfo;
+    entities?: any[];
+}
 ```
 
+* If `rollback = true`, no changes were committed (due to errors or because `dryRun` was enabled).
+* `noErrors = true` indicates all operations succeeded.
+* `entity` or `entities` contain the final resulting entities.
+* If any errors occurred, the details appear under `exception`.
 
-Name: string;
-entityId?: number;
-entity?: any;
-exception?: ODataExceptionInfo;
-entities?: any\[];
-}
+In some cases—such as invalid JSON—a more primitive error message may be returned.
 
-````
+## **Sessions**
 
-If `rollback` is `true`, nothing was changed in the database, due to errors or a dry run.
+Authentication is done via the `token` query parameter or the `X-API-KEY` header.
 
-If `noErrors` is `true`, the request was successful without errors.
+The server is stateless. Sessions are deleted immediately after a request.
+Cookies are **no longer needed**.
 
-`entity` or `entities` fields contain the resulting entities after the operation.
+Our servers support **HTTP/2**.
 
-Errors are shown in the respective response item as `exception`, which could be authorization, validation, or internal errors.
+## **Use Cases**
 
-Sometimes, e.g. invalid JSON input, no `BatchResponse` is returned but a more primitive error.
+### **Reading data**
 
-## Sessions
+Suppose you want to periodically retrieve all absences from the last 2 weeks from app.planning.nl and import them into another system.
 
-Authentication is done via `token` query parameter or `X-API-KEY` header.
-
-The server is stateless. Sessions are removed immediately after a request. Sending cookies is no longer necessary.
-
-Note our servers support HTTP2.
-
-## Use Cases
-
-### Reading Data
-
-Suppose you want to periodically read all absences from the last 2 weeks from app.planning.nl and import them into another system.
-
-As described above, you can do this with a standard OData URL, for example:  
+You can use a standard OData URL:
 `https://app.planning.nl/OData/V1/absenceassignments?$filter=End gt (now() sub duration'P14D')`
 
-If the set can be larger than 10,000 items, recursively call the *nextLink* to fetch the entire set.
+If the result set can exceed 10,000 items, you must follow the `nextLink` recursively until the full dataset has been retrieved.
 
-You will likely need to convert data (e.g., `Start` and `End` to the correct format for the target system) before importing.
+You may need to convert fields for the target system (e.g., convert `Start` and `End` into the required date/time format).
 
-### Synchronizing Personnel
+### **Synchronizing personnel**
 
-Suppose you have a set of objects from an external system to synchronize into app.planning.nl.
+Suppose you have a set of objects from an external system and want to synchronize them into app.planning.nl.
 
-It is important that you have a unique field per personnel in the external system, e.g., an ID or personnel number.
+It is important that the external system uses a unique value per employee—such as an ID or personnel number.
 
-The integration periodically reads all data from the external system and converts it into a batch request JSON message. Use the external personnel number as `ExternalId` in the entities. Using the `UPSERT` batch method automatically adds new personnel and updates existing ones.
+The integration periodically reads all external data and converts it into a batch request.
+The `ExternalId` field is set to the external personnel number.
 
-Note this does not clean up "old" personnel. To do so, add a `DELETE_MULTIPLE` that checks if `ExternalId` is set but excludes the list of existing IDs:
+Using `UPSERT`, new personnel are automatically created and existing ones updated.
+
+However, old personnel that no longer exist externally are **not** automatically removed.
+Therefore, a `DELETE_MULTIPLE` operation is added:
 
 ```json
 {
@@ -544,43 +566,45 @@ Note this does not clean up "old" personnel. To do so, add a `DELETE_MULTIPLE` t
   "entitySetName" : "personnelcollection",
   "method" : "DELETE_MULTIPLE"
 }
-````
+```
 
-The list of ExternalIds can be quite large but normally does not cause problems. If issues arise, contact us for advice.
+The list can be large, but this is usually not an issue.
+If needed, contact us for advice.
 
-### Creating Project Structure
+### **Creating a project structure**
 
-An external party wanted to automatically create a request block and assignment blocks from their system in the tool. Updates should update the same blocks.
+An external party wanted to automatically create a question block and assignment blocks in the tool based on their system.
+When updated, the same block should be modified.
 
-The app.planning.nl project structure:
+The project structure in app.planning.nl works as follows:
 
-* From a project, a *request line* can be added
-* *Request blocks* with start/end dates can be added to a request line
-* Desired *project competences* are specified at the request line
-* Competences are attributes that a *resource* (personnel or equipment) can fulfill
-* A request block specifies for each project competence the number (or hours) of resources to assign
-* *Project assignments* (also blocks with start/end) can be linked to requested competences of a request block
-* These are shown on a separate line for the *resource* (personnel or equipment):
+* From a project, you can add a *question line*
+* A question line can have *question blocks* (with start/end date)
+* The question line specifies required *project competences*
+* Competences describe properties that a *resource* (personnel or materials) can fulfill
+* A question block specifies the number of resources needed per competence
+* Assignments can be linked to these required competences
+* Assignments appear on a resource line for the assigned personnel or materials.
 
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/d12b1125-cc44-4796-ba1d-574e65fbe92f)
 
-All this can be done with the Batch API. Example message:
+This can all be handled with the Batch API.
 
 ```js
 {
   "items" : [ {
     "entity" : {
-      "Description" : "[Project name]",
+      "Description" : "[Projectnaam]",
 
-      // Project start and end dates in Europe/Amsterdam timezone
+      // Start- en einddatum project in Europe/Amsterdam
       "Start" : "2024-02-07T23:00:00Z", 
       "End" : "2024-02-12T23:00:00Z",
 
-      // AllDay indicates the block works with full days, not times
+      // AllDay geeft aan dat het blokje met hele dagen en niet met tijden werkt
       "AllDay" : true,
 
-      // Identifies the project for upserts
-      "ExternalId" : "[Project code]", 
+      // Identificeert het project voor upserts
+      "ExternalId" : "[Code project]", 
     },
     "entitySetName" : "projects", // Project
     "method" : "UPSERT"
@@ -588,47 +612,47 @@ All this can be done with the Batch API. Example message:
     "entity" : {
       "Description" : "",
 
-      // Link to the project created above
+      // Koppelen aan het aangemaakte project hierboven
       "ProjectEntity" : {
-        "ExternalId" : "[Project code]" 
+        "ExternalId" : "[Code project]" 
       },
 
-      // Always create/update the same request line
-      "ExternalId" : "[Project code]" 
+      // Maak/bewerk steeds dezelfde vraagregel
+      "ExternalId" : "[Code project]" 
     },
-    "entitySetName" : "projectrequests", // Request line
+    "entitySetName" : "projectrequests", // Vraagregel
     "method" : "UPSERT"
   }, {
     "entity" : {
-      // Per projectcompetence multiple required competences can be specified (*projectcompetencevalues*)
+      // Per projectcompetence kunnen meerdere benodigde competenties worden opgegeven (*projectcompetencevalues*).
       "Projectcompetencevalues_ProjectCompetence" : [ { 
         "CompetenceEntity" : {
-          "ExternalId" : "[equipment]", // For identification
-          "Description" : "Equipment" // Competence name
+          "ExternalId" : "[materieel]", // Ter identificatie
+          "Description" : "Materieel" // Naam van de competentieregel
 
           /*
-           * Resource class of competence:
-           * 0 = `personnel`
+           * De *resource class* van de competentie:
+           * 0 = `personeel`
            * 1 = `entity1`
            * 2 = `entity2`
            */
           "ResourceClass" : 2, 
         },
-        // Identification
-        "ExternalId" : "[Project code]" 
+        // Ter identificatie
+        "ExternalId" : "[Code project]" 
       } ],
 
-      // Always create/update the same competence line
-      "ExternalId" : "[Project code]",
+      // Maak/bewerk steeds dezelfde competentieregel
+      "ExternalId" : "[Code project]",
 
-      // Link to projectrequest created above
+       // Koppelen aan de aangemaakte projectrequest hierboven 
       "ProjectRequestEntity" : {
-        "ExternalId" : "[Project code]" 
+        "ExternalId" : "[Code project]" 
       },
 
       /*
-       * Used when creating a new block via the tool.
-       * (not relevant here, but required field)
+       * Dit wordt gebruikt als je een nieuw blokje aanmaakt via de tool.
+       * (in dit geval niet van belang, maar wel een verplicht veld)
        */
       "DefaultAmount" : 1 
     },
@@ -638,64 +662,66 @@ All this can be done with the Batch API. Example message:
     "entity" : {
       "Start" : "2024-02-10T07:00:00Z",
       "End" : "2024-02-10T15:00:00Z",
-      "AllDay" : false, // This block works with times, not full days
-      "Comments": "[Comments]",
+      "AllDay" : false, // Dit blokje werkt niet op hele dagen, maar met tijden.
+      "Comments": "[Opmerkingen]",
 
-      // Code for the block from the external package
-      "ExternalId" : "[Block code]",
+      // De code voor het blokje uit het externe pakket.
+      "ExternalId" : "[Code blokje]",
 
-      // Link request block to correct request line
+      // Zet vraagblokje op de juiste vraagregel.
       "ProjectRequestEntity" : {
-        "ExternalId" : "[Project code]"
+        "ExternalId" : "[Code project]"
       },
     },
     "entitySetName" : "projectrequestplacements",
     "method" : "UPSERT",
     /*
-     * If Start/End changes while assignments exist,
-     * assignments might fall outside the request block,
-     * causing validation errors.
-     * One fix option is to automatically shorten project assignments
-     * to new Start/End (or remove if completely outside).
-     */
+     * Stel dat Start/End veranderd terwijl er al toekenningen zijn.
+     * Dan kan het gebeuren dat toekenningen buiten dit vraagblokje komen te liggen.
+     * Dat is niet tegestaan waardoor er een validatiefout ontstaat.
+     * 1 van de 'fix options' is om de projecttoekenningen automatisch in te korten
+     * tot de nieuwe Start/End (of eventueel te verwijderen als ze er helemaal buiten
+     * komen te vallen).
+     */ 
     "fixOptions": { "PROJECTASSIGNMENTS_OUTSIDE_RANGE": "CAP_TO_RANGE" },
     /*
-     * If Start changes, automatically move all child assignments.
-     * This is default behavior and can be omitted.
-     * 'extraParameters' usually needed only if indicated by us.
+     * Als Start veranderd, verplaats dan automatisch alle onderliggende toekenningen mee.
+     * Merk op dat dit de 'default' is dus eigenlijk achterwege kan worden gelaten.
+     * 'extraParamaters' is gewoonlijk alleen nodig als wij dat aangeven in overleg.
      */  
     "extraParameters": { "moveSubItems": true }
   }, {
     "entity" : {
       /*
-       * projectcompetenceplacements can be identified automatically by:
-       * - the request block (projectrequestplacement)
-       * - and the competence line (projectcompetence)
+       * projectcompetenceplacements kunnen automatisch worden geidentificeerd op basis van:
+       * - het vraagblokje (projectrequestplacement)
+       * - en de competentieregel (projectcompetence)
        */ 
       "ProjectRequestPlacementEntity" : {
-        "ExternalId" : "[Block code]"
+        "ExternalId" : "[Code blokje]"
       },
       "ProjectCompetenceEntity" : {
-        "ExternalId" : "[Project code]"
+        "ExternalId" : "[Code project]"
       },
 
-      // Number of required assignments
+      // Het aantal benodigde toekenningen.
       "Amount": 1,
 
       /*
-       * Project assignments (blocks) shown.
-       * Using deep upsert automatically cleans old assignments for this competence.
+       * De projectassignments (blokjes) die worden getoond.
+       * Door een deep upsert te gebruiken worden eventuele 'oude' toekenningen voor deze 
+       * competentie automatisch opgeruimd.
        */
       "Projectassignments_ProjectCompetencePlacement": [ {
         "ResourceEntity" : {
-          // Optionally auto-create this resource
+          // Eventueel automatisch deze resource aanmaken.
           "ResourceClass" : 2,
-          "ExternalId" : "[Equipment code]",
-          "Description" : "[Equipment name]",
+          "ExternalId" : "[Code Materiaal]",
+          "Description" : "[Materiaal naam]",
           "ResourceTypeEntity": {
-            "ResourceClass": 2, // ResourceType also has a ResourceClass
-            "ExternalId": "[Equipment type code A]",
-            "Description": "[Equipment type A]"
+            "ResourceClass": 2, // Ook een ResourceType heeft een ResourceClass.
+            "ExternalId": "[Code Materiaaltype A]",
+            "Description": "[Materiaaltype A]"
           }
         },
 
@@ -704,18 +730,18 @@ All this can be done with the Batch API. Example message:
         "AllDay" : false,
 
         /*
-         * HoursPerDay should be 24 if AllDay is false.
-         * For full days, HoursPerDay indicates hours per day.
-         * HoursTotal can be used to specify fixed hours,
-         * regardless of duration (Start, End). Then set HoursPerDay to null.
+         * HoursPerDay moet op 24 staan als AllDay false is.
+         * Bij hele dagen geet HoursPerDay het aantal uren per dag.
+         * HoursTotal kan worden gebruikt om een vast aantal uren te specificeren,
+         * onafhankelijk van de duur (Start, End). Dan moet HoursPerDay op null worden ingesteld.
          */
         "HoursPerDay" : 24,
 
         /*
-         * We must use a composite ExternalId here to be globally unique
-         * for projectcompetenceplacements.
+         * We moeten hier een samengestelde ExternalId gebruiken zodat deze globaal uniek
+         * is voor projectcompetenceplacements.
          */
-        "ExternalId" : "[Block code] [Equipment code]"
+        "ExternalId" : "[Code blokje] [Code Materiaal]"
       } ]
     },
     "entitySetName" : "projectcompetenceplacements",
@@ -724,7 +750,6 @@ All this can be done with the Batch API. Example message:
 }
 ```
 
-## Questions and Support
+## **Questions and support**
 
-For questions about the integration, please contact [support@planning.nl](mailto:support@planning.nl).
-
+For questions about the integration, you can contact **[support@planning.nl](mailto:support@planning.nl)**.
