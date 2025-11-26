@@ -101,6 +101,8 @@ Vraag alleen het aantal personeelsleden op
 ### Opvraaglimiet
 Er zit een limiet van 10.000 items in de repons. Dit is gedaan om onze server te beschermen tegen aanvragen zonder filters. Als uw opgevraagde set meer items heeft, dan zal er een `@odata.nextLink` veld, met een URL, in de response worden toegevoegd. Deze kan dan als odata request worden uitgevoerd om de volgende 10.000 resultaten te krijgen. Dit kan recursief worden gedaan totdat er geen nextpage link meer in de response staat. Dan is de volledige set binnengehaald.
 
+> Let op! Het is geen goed idee om het $skip veld met hoge waardes te gebruiken! Bij gebruik van dit veld moeten alsnog alle records nagelopen worden, omdat gechekt moet worden of ze 'deleted' zijn. Dit is veel trager en zwaarder dan de `@odata.nextLink`!
+
 ### OData URL genereren
 In app.planning.nl kan je ook een OData URL genereren door een tabel te openen. De filters en getoonde velden (tandwiel-knopje) worden via de knop *exporteren* > *OData* naar een URL geexporteerd. Een voorbeeld:
 ![image](https://github.com/Planning-nl/app-api-examples/assets/120531/fed13fbe-90f6-4325-b77b-bbaef6ff3061)
