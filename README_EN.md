@@ -560,7 +560,7 @@ Therefore, a `DELETE_MULTIPLE` operation is added:
 
 ```json
 {
-  "entityFilter" : "filter=length(ExternalId) gt 0 and not (ExternalId in ('ab123', 'ab234'))",
+  "entityFilter" : "length(ExternalId) gt 0 and not (ExternalId in ('ab123', 'ab234'))",
   "entitySetName" : "personnelcollection",
   "method" : "DELETE_MULTIPLE"
 }
