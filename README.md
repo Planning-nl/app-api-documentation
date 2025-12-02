@@ -515,7 +515,7 @@ Merk op dat op deze manier geen 'oude' personeelsleden opgeruimd worden. Omdat d
 
 ```json
     {
-      "entityFilter" : "filter=length(ExternalId) gt 0 and not (ExternalId in ('ab123', 'ab234'))",
+      "entityFilter" : "length(ExternalId) gt 0 and not (ExternalId in ('ab123', 'ab234'))",
       "entitySetName" : "personnelcollection",
       "method" : "DELETE_MULTIPLE"
     }
