@@ -37,6 +37,10 @@ The available types and fields depend on your environment’s configuration.
 Each field has a **datatype** (e.g., `Edm.String`). This is an OData type. Most are self-explanatory, but an `Edm.DateTimeOffset` is formatted as ISO UTC datetime for the Europe/Amsterdam timezone. For example:
 `2024-01-01T10:00:00Z` corresponds to local time 11:00.
 
+### **UML diagram**
+<img width="858" height="1000" alt="image" src="https://github.com/user-attachments/assets/9011f44f-64c0-4906-a4a3-ebcd014d4836" />
+
+
 ### **Navigations**
 
 Some fields also have a **navigation**. This means a relationship exists with another entity. For example, personnel has a relation to a *personnel_resourcetype*, named `ResourceTypeEntity`.
