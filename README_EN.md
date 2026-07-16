@@ -397,6 +397,10 @@ For `resourcedepartments`, if both `Resource` and `Department` are provided, the
 
 Same as UPSERT, but throws an error if the entity does **not** yet exist.
 
+### **UPDATE_IF_EXISTS**
+
+Same as `UPDATE`, but returns `NOCHANGE` (without an error) if the entity does not yet exist.
+
 ### **DELETE**
 
 Equivalent to OData **DELETE**.
