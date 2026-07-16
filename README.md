@@ -347,6 +347,10 @@ Voorbeeld:
 
 Hetzelfde als `UPSERT`, maar geeft een foutmelding als de entity nog niet bestond.
 
+#### UPDATE_IF_EXISTS
+
+Hetzelfde als `UPDATE`, maar geeft melding 'NOCHANGE' (zonder foutmelding) als de entity nog niet bestond.
+
 #### DELETE
 
 Equivalent aan de OData `DELETE` request method. `entityId` of `entity` kan gebruikt worden om te identificeren (net als bij `UPSERT`). Voorbeeld:
