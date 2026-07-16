@@ -349,7 +349,7 @@ Hetzelfde als `UPSERT`, maar geeft een foutmelding als de entity nog niet beston
 
 #### UPDATE_IF_EXISTS
 
-Hetzelfde als `UPDATE`, maar geeft melding 'NOCHANGE' (zonder foutmelding) als de entity nog niet bestond.
+Hetzelfde als `UPDATE`, maar geeft melding `NOCHANGE` (zonder foutmelding) als de entity nog niet bestond.
 
 #### DELETE
 
